@@ -1,617 +1,1412 @@
-// Replace all your existing texture creation functions with these:
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ballistic Chickens Deluxe</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background: linear-gradient(to bottom, #87CEEB, #1E90FF);
+            font-family: 'Comic Sans MS', cursive;
+            touch-action: none;
+            width: 100vw;
+            height: 100vh;
+            position: fixed;
+        }
+        #gameContainer {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+        #gameCanvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        #ui {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: white;
+            font-size: 24px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            pointer-events: none;
+            z-index: 10;
+        }
+        #controls {
+            position: absolute;
+            bottom: 20px;
+            width: 100%;
+            text-align: center;
+            z-index: 10;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 18px;
+            background-color: #FF8C00;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 0 10px;
+            transition: all 0.3s;
+            pointer-events: auto;
+            z-index: 10;
+        }
+        button:hover {
+            background-color: #FF6B00;
+            transform: scale(1.05);
+        }
+        #message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 48px;
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            transition: opacity 0.5s;
+            pointer-events: none;
+            z-index: 10;
+        }
+        #fullscreenBtn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <div id="ui">
+            <div>Chickens: <span id="chickenCount">5</span></div>
+            <div>Score: <span id="score">0</span></div>
+            <div>Level: <span id="level">1</span></div>
+        </div>
+        <canvas id="gameCanvas"></canvas>
+        <div id="controls">
+            <button id="restartBtn">Restart Level</button>
+            <button id="newGameBtn">New Game</button>
+        </div>
+        <div id="message"></div>
+        <button id="fullscreenBtn">Fullscreen</button>
+    </div>
 
-function createChickenTexture() {
-    const canvas = document.createElement('canvas');
-    canvas.width = CHICKEN_RADIUS * 4; // Higher resolution
-    canvas.height = CHICKEN_RADIUS * 4;
-    const ctx = canvas.getContext('2d');
-    const center = CHICKEN_RADIUS * 2;
-    
-    // Body with gradient
-    const bodyGradient = ctx.createRadialGradient(
-        center, center, 0,
-        center, center, CHICKEN_RADIUS * 1.8
-    );
-    bodyGradient.addColorStop(0, '#FFEA00');
-    bodyGradient.addColorStop(1, '#FFA500');
-    ctx.fillStyle = bodyGradient;
-    ctx.beginPath();
-    ctx.ellipse(center, center, CHICKEN_RADIUS * 1.5, CHICKEN_RADIUS * 1.8, 0, 0, Math.PI * 2);
-    ctx.fill();
-    
-    // Feather details
-    ctx.strokeStyle = '#FFC600';
-    ctx.lineWidth = 2;
-    for (let i = 0; i < 8; i++) {
-        const angle = (i / 8) * Math.PI * 2;
-        const x1 = center + Math.cos(angle) * CHICKEN_RADIUS * 1.2;
-        const y1 = center + Math.sin(angle) * CHICKEN_RADIUS * 1.2;
-        const x2 = center + Math.cos(angle) * CHICKEN_RADIUS * 1.6;
-        const y2 = center + Math.sin(angle) * CHICKEN_RADIUS * 1.6;
-        ctx.beginPath();
-        ctx.moveTo(x1, y1);
-        ctx.lineTo(x2, y2);
-        ctx.stroke();
-    }
-    
-    // Eyes with shine
-    ctx.fillStyle = 'white';
-    ctx.beginPath();
-    ctx.arc(center - 15, center - 10, 8, 0, Math.PI * 2);
-    ctx.arc(center + 15, center - 10, 8, 0, Math.PI * 2);
-    ctx.fill();
-    
-    ctx.fillStyle = '#333';
-    ctx.beginPath();
-    ctx.arc(center - 15, center - 10, 4, 0, Math.PI * 2);
-    ctx.arc(center + 15, center - 10, 4, 0, Math.PI * 2);
-    ctx.fill();
-    
-    // Eye shine
-    ctx.fillStyle = 'white';
-    ctx.beginPath();
-    ctx.arc(center - 17, center - 12, 2, 0, Math.PI * 2);
-    ctx.arc(center + 13, center - 12, 2, 0, Math.PI * 2);
-    ctx.fill();
-    
-    // Beak with gradient
-    const beakGradient = ctx.createLinearGradient(
-        center - 10, center + 10,
-        center + 10, center + 20
-    );
-    beakGradient.addColorStop(0, '#FFC600');
-    beakGradient.addColorStop(1, '#FF6B00');
-    ctx.fillStyle = beakGradient;
-    ctx.beginPath();
-    ctx.moveTo(center - 10, center + 10);
-    ctx.lineTo(center + 10, center + 10);
-    ctx.lineTo(center, center + 20);
-    ctx.fill();
-    
-    // Comb (top of head)
-    ctx.fillStyle = '#FF2800';
-    ctx.beginPath();
-    ctx.moveTo(center - 15, center - 25);
-    ctx.quadraticCurveTo(center, center - 35, center + 15, center - 25);
-    ctx.quadraticCurveTo(center, center - 30, center - 15, center - 25);
-    ctx.fill();
-    
-    return canvas;
-}
+    <script>
+        // Game constants
+        const CHICKEN_RADIUS = 20;
+        const PIG_RADIUS = 20;
+        const WOOD_STRENGTH = 3;
+        const ICE_STRENGTH = 1;
+        const STONE_STRENGTH = 5;
+        const GROUND_HEIGHT_RATIO = 0.85; // Percentage of screen height for ground
 
-function createPigTexture() {
-    const canvas = document.createElement('canvas');
-    canvas.width = PIG_RADIUS * 4;
-    canvas.height = PIG_RADIUS * 4;
-    const ctx = canvas.getContext('2d');
-    const center = PIG_RADIUS * 2;
-    
-    // Body with gradient and shading
-    const bodyGradient = ctx.createRadialGradient(
-        center, center, 0,
-        center, center, PIG_RADIUS * 1.8
-    );
-    bodyGradient.addColorStop(0, '#FF9E9E');
-    bodyGradient.addColorStop(1, '#FF6B6B');
-    ctx.fillStyle = bodyGradient;
-    ctx.beginPath();
-    ctx.ellipse(center, center, PIG_RADIUS * 1.6, PIG_RADIUS * 1.8, 0, 0, Math.PI * 2);
-    ctx.fill();
-    
-    // Shadow on bottom
-    ctx.fillStyle = 'rgba(200, 100, 100, 0.3)';
-    ctx.beginPath();
-    ctx.ellipse(center, center + PIG_RADIUS * 0.8, 
-                PIG_RADIUS * 1.5, PIG_RADIUS * 0.8, 0, 0, Math.PI);
-    ctx.fill();
-    
-    // Eyes with cartoon style
-    ctx.fillStyle = 'white';
-    ctx.beginPath();
-    ctx.arc(center - 12, center - 8, 6, 0, Math.PI * 2);
-    ctx.arc(center + 12, center - 8, 6, 0, Math.PI * 2);
-    ctx.fill();
-    
-    ctx.fillStyle = '#333';
-    ctx.beginPath();
-    ctx.arc(center - 12, center - 8, 3, 0, Math.PI * 2);
-    ctx.arc(center + 12, center - 8, 3, 0, Math.PI * 2);
-    ctx.fill();
-    
-    // Eye shine
-    ctx.fillStyle = 'white';
-    ctx.beginPath();
-    ctx.arc(center - 13, center - 9, 1.5, 0, Math.PI * 2);
-    ctx.arc(center + 11, center - 9, 1.5, 0, Math.PI * 2);
-    ctx.fill();
-    
-    // Nose with nostrils
-    ctx.fillStyle = '#E84C3D';
-    ctx.beginPath();
-    ctx.ellipse(center, center + 5, 10, 8, 0, 0, Math.PI * 2);
-    ctx.fill();
-    
-    ctx.fillStyle = '#C1392B';
-    ctx.beginPath();
-    ctx.arc(center - 4, center + 5, 2, 0, Math.PI * 2);
-    ctx.arc(center + 4, center + 5, 2, 0, Math.PI * 2);
-    ctx.fill();
-    
-    // Ears
-    ctx.fillStyle = '#FF6B6B';
-    ctx.beginPath();
-    ctx.moveTo(center - 20, center - 15);
-    ctx.lineTo(center - 25, center - 25);
-    ctx.lineTo(center - 15, center - 20);
-    ctx.fill();
-    
-    ctx.beginPath();
-    ctx.moveTo(center + 20, center - 15);
-    ctx.lineTo(center + 25, center - 25);
-    ctx.lineTo(center + 15, center - 20);
-    ctx.fill();
-    
-    return canvas;
-}
+        // Game setup
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const chickenCountEl = document.getElementById('chickenCount');
+        const scoreEl = document.getElementById('score');
+        const levelEl = document.getElementById('level');
+        const restartBtn = document.getElementById('restartBtn');
+        const newGameBtn = document.getElementById('newGameBtn');
+        const messageEl = document.getElementById('message');
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
+        const gameContainer = document.getElementById('gameContainer');
 
-function createWoodTexture() {
-    const canvas = document.createElement('canvas');
-    canvas.width = 80;
-    canvas.height = 80;
-    const ctx = canvas.getContext('2d');
-    
-    // Wood base with gradient
-    const woodGradient = ctx.createLinearGradient(0, 0, 0, 80);
-    woodGradient.addColorStop(0, '#8B4513');
-    woodGradient.addColorStop(0.5, '#A0522D');
-    woodGradient.addColorStop(1, '#5D2906');
-    ctx.fillStyle = woodGradient;
-    ctx.fillRect(0, 0, 80, 80);
-    
-    // Wood grain - more detailed
-    ctx.strokeStyle = 'rgba(60, 30, 10, 0.7)';
-    ctx.lineWidth = 1.5;
-    for (let i = 0; i < 8; i++) {
-        const y = i * 10 + Math.random() * 5;
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.bezierCurveTo(
-            20, y + Math.random() * 6 - 3,
-            40, y + Math.random() * 6 - 3,
-            80, y + Math.random() * 4 - 2
-        );
-        ctx.stroke();
+        // Screen dimensions
+        let LEVEL_WIDTH = window.innerWidth;
+        let LEVEL_HEIGHT = window.innerHeight;
+        let GROUND_HEIGHT = LEVEL_HEIGHT * GROUND_HEIGHT_RATIO;
         
-        // Add finer grain lines
-        if (i < 7) {
-            ctx.strokeStyle = 'rgba(60, 30, 10, 0.4)';
-            ctx.lineWidth = 0.8;
-            for (let j = 0; j < 3; j++) {
-                const subY = y + 3 + j * 2;
-                ctx.beginPath();
-                ctx.moveTo(0, subY);
-                ctx.lineTo(80, subY + Math.random() * 4 - 2);
-                ctx.stroke();
+        // Handle window resize
+        function handleResize() {
+            LEVEL_WIDTH = window.innerWidth;
+            LEVEL_HEIGHT = window.innerHeight;
+            GROUND_HEIGHT = LEVEL_HEIGHT * GROUND_HEIGHT_RATIO;
+            
+            canvas.width = LEVEL_WIDTH;
+            canvas.height = LEVEL_HEIGHT;
+            
+            // Update slingshot position (left side, above ground)
+            gameState.slingshot.x = LEVEL_WIDTH * 0.1;
+            gameState.slingshot.y = GROUND_HEIGHT - 50;
+            
+            // Regenerate ground texture
+            textures.ground = createGroundTexture();
+        }
+        
+        window.addEventListener('resize', handleResize);
+        
+        // Fullscreen functionality
+        fullscreenBtn.addEventListener('click', () => {
+            if (!document.fullscreenElement) {
+                gameContainer.requestFullscreen().catch(err => {
+                    console.error(`Error attempting to enable fullscreen: ${err.message}`);
+                });
+            } else {
+                document.exitFullscreen();
             }
-            ctx.strokeStyle = 'rgba(60, 30, 10, 0.7)';
-            ctx.lineWidth = 1.5;
-        }
-    }
-    
-    // Knots and imperfections
-    ctx.fillStyle = 'rgba(40, 20, 5, 0.6)';
-    for (let i = 0; i < 3; i++) {
-        const x = 20 + Math.random() * 40;
-        const y = 20 + Math.random() * 40;
-        const size = 3 + Math.random() * 5;
-        ctx.beginPath();
-        ctx.arc(x, y, size, 0, Math.PI * 2);
-        ctx.fill();
-        
-        // Knot rings
-        ctx.strokeStyle = 'rgba(40, 20, 5, 0.8)';
-        ctx.lineWidth = 0.8;
-        ctx.beginPath();
-        ctx.arc(x, y, size * 1.5, 0, Math.PI * 2);
-        ctx.stroke();
-    }
-    
-    return canvas;
-}
+        });
 
-function createIceTexture() {
-    const canvas = document.createElement('canvas');
-    canvas.width = 80;
-    canvas.height = 80;
-    const ctx = canvas.getContext('2d');
-    
-    // Ice base with gradient
-    const iceGradient = ctx.createLinearGradient(0, 0, 80, 80);
-    iceGradient.addColorStop(0, '#B3E5FC');
-    iceGradient.addColorStop(0.5, '#81D4FA');
-    iceGradient.addColorStop(1, '#4FC3F7');
-    ctx.fillStyle = iceGradient;
-    ctx.fillRect(0, 0, 80, 80);
-    
-    // Frost patterns
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
-    ctx.lineWidth = 1.2;
-    for (let i = 0; i < 15; i++) {
-        const x = Math.random() * 80;
-        const y = Math.random() * 80;
-        const size = 5 + Math.random() * 15;
-        
-        ctx.beginPath();
-        ctx.moveTo(x, y);
-        for (let j = 0; j < 4; j++) {
-            const angle = Math.random() * Math.PI * 2;
-            const length = size * (0.5 + Math.random() * 0.5);
-            ctx.lineTo(x + Math.cos(angle) * length, y + Math.sin(angle) * length);
-        }
-        ctx.closePath();
-        ctx.stroke();
-    }
-    
-    // Reflective highlights
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
-    ctx.beginPath();
-    ctx.moveTo(0, 0);
-    ctx.lineTo(40, 0);
-    ctx.lineTo(0, 40);
-    ctx.fill();
-    
-    ctx.beginPath();
-    ctx.moveTo(80, 80);
-    ctx.lineTo(40, 80);
-    ctx.lineTo(80, 40);
-    ctx.fill();
-    
-    // Bubbles and imperfections
-    for (let i = 0; i < 8; i++) {
-        const x = Math.random() * 80;
-        const y = Math.random() * 80;
-        const size = 1 + Math.random() * 3;
-        
-        ctx.fillStyle = 'rgba(200, 240, 255, 0.8)';
-        ctx.beginPath();
-        ctx.arc(x, y, size, 0, Math.PI * 2);
-        ctx.fill();
-        
-        // Bubble highlight
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-        ctx.beginPath();
-        ctx.arc(x - size/3, y - size/3, size/3, 0, Math.PI * 2);
-        ctx.fill();
-    }
-    
-    return canvas;
-}
+        // Load textures
+        const textures = {
+            chicken: createChickenTexture(),
+            pig: createPigTexture(),
+            wood: createWoodTexture(),
+            ice: createIceTexture(),
+            stone: createStoneTexture(),
+            ground: createGroundTexture(),
+            slingshot: createSlingshotTexture(),
+            explosion: createExplosionTexture()
+        };
 
-function createStoneTexture() {
-    const canvas = document.createElement('canvas');
-    canvas.width = 80;
-    canvas.height = 80;
-    const ctx = canvas.getContext('2d');
-    
-    // Stone base with gradient
-    const stoneGradient = ctx.createLinearGradient(0, 0, 80, 80);
-    stoneGradient.addColorStop(0, '#7F7F7F');
-    stoneGradient.addColorStop(0.5, '#999999');
-    stoneGradient.addColorStop(1, '#5F5F5F');
-    ctx.fillStyle = stoneGradient;
-    ctx.fillRect(0, 0, 80, 80);
-    
-    // Stone texture with noise
-    const imageData = ctx.getImageData(0, 0, 80, 80);
-    const data = imageData.data;
-    
-    for (let i = 0; i < data.length; i += 4) {
-        // Add grain
-        const grain = Math.random() * 30 - 15;
-        data[i] = Math.min(255, Math.max(0, data[i] + grain));     // R
-        data[i+1] = Math.min(255, Math.max(0, data[i+1] + grain)); // G
-        data[i+2] = Math.min(255, Math.max(0, data[i+2] + grain)); // B
-        
-        // Add some color variation
-        if (Math.random() > 0.7) {
-            data[i] += Math.random() * 20 - 10;   // More red
-            data[i+1] += Math.random() * 10 - 5;  // Less green
-        }
-    }
-    
-    ctx.putImageData(imageData, 0, 0);
-    
-    // Stone cracks
-    ctx.strokeStyle = 'rgba(60, 60, 60, 0.6)';
-    ctx.lineWidth = 1.2;
-    for (let i = 0; i < 5; i++) {
-        const x1 = Math.random() * 80;
-        const y1 = Math.random() * 80;
-        const x2 = x1 + Math.random() * 30 - 15;
-        const y2 = y1 + Math.random() * 30 - 15;
-        
-        ctx.beginPath();
-        ctx.moveTo(x1, y1);
-        for (let j = 0; j < 3; j++) {
-            const midX = (x1 + x2)/2 + Math.random() * 10 - 5;
-            const midY = (y1 + y2)/2 + Math.random() * 10 - 5;
-            ctx.quadraticCurveTo(midX, midY, x2, y2);
-        }
-        ctx.stroke();
-    }
-    
-    // Mineral veins
-    const veinColors = ['#6AB7E6', '#A57FBF', '#E6C36A', '#8FBE8F'];
-    for (let i = 0; i < 3; i++) {
-        const x1 = Math.random() * 80;
-        const y1 = Math.random() * 80;
-        const length = 10 + Math.random() * 30;
-        const angle = Math.random() * Math.PI * 2;
-        const x2 = x1 + Math.cos(angle) * length;
-        const y2 = y1 + Math.sin(angle) * length;
-        
-        ctx.strokeStyle = veinColors[Math.floor(Math.random() * veinColors.length)];
-        ctx.lineWidth = 0.8 + Math.random() * 1.5;
-        ctx.beginPath();
-        ctx.moveTo(x1, y1);
-        ctx.lineTo(x2, y2);
-        ctx.stroke();
-    }
-    
-    return canvas;
-}
+        // Game state
+        let gameState = {
+            chickens: 5,
+            score: 0,
+            level: 1,
+            launchedChickens: [],
+            targets: [],
+            obstacles: [],
+            particles: [],
+            slingshot: { x: LEVEL_WIDTH * 0.1, y: GROUND_HEIGHT - 50 },
+            dragging: false,
+            currentChicken: null,
+            gameOver: false,
+            levelComplete: false,
+            lastTime: 0,
+            deltaTime: 0
+        };
 
-function createGroundTexture() {
-    const canvas = document.createElement('canvas');
-    canvas.width = LEVEL_WIDTH;
-    canvas.height = LEVEL_HEIGHT - GROUND_HEIGHT + 50; // Extra for grass height
-    const ctx = canvas.getContext('2d');
-    
-    // Dirt base
-    const dirtGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-    dirtGradient.addColorStop(0, '#5D4037');
-    dirtGradient.addColorStop(0.7, '#3E2723');
-    dirtGradient.addColorStop(1, '#1B0000');
-    ctx.fillStyle = dirtGradient;
-    ctx.fillRect(0, 0, LEVEL_WIDTH, canvas.height);
-    
-    // Grass layer
-    const grassGradient = ctx.createLinearGradient(0, 0, 0, 40);
-    grassGradient.addColorStop(0, '#4CAF50');
-    grassGradient.addColorStop(0.5, '#388E3C');
-    grassGradient.addColorStop(1, '#2E7D32');
-    ctx.fillStyle = grassGradient;
-    ctx.fillRect(0, 0, LEVEL_WIDTH, 40);
-    
-    // Grass blades
-    ctx.strokeStyle = '#2E7D32';
-    ctx.lineWidth = 1.5;
-    for (let i = 0; i < 300; i++) {
-        const x = Math.random() * LEVEL_WIDTH;
-        const height = 10 + Math.random() * 30;
-        const curve = Math.random() * 20 - 10;
+        // Initialize game
+        function initGame() {
+            handleResize();
+            resetGameState();
+            generateLevel();
+            render();
+            gameLoop(performance.now());
+        }
+
+        function resetGameState() {
+            gameState.launchedChickens = [];
+            gameState.targets = [];
+            gameState.obstacles = [];
+            gameState.particles = [];
+            gameState.dragging = false;
+            gameState.currentChicken = null;
+            gameState.gameOver = false;
+            gameState.levelComplete = false;
+        }
+
+        function generateLevel() {
+            // Clear existing
+            gameState.targets = [];
+            gameState.obstacles = [];
+            
+            // Create targets (pigs)
+            const pigCount = 3 + Math.floor(gameState.level * 1.5);
+            for (let i = 0; i < pigCount; i++) {
+                gameState.targets.push({
+                    x: LEVEL_WIDTH * 0.6 + Math.random() * LEVEL_WIDTH * 0.3,
+                    y: GROUND_HEIGHT - 100 - Math.random() * (GROUND_HEIGHT - 200),
+                    radius: PIG_RADIUS,
+                    health: 1,
+                    type: 'pig'
+                });
+            }
+            
+            // Create obstacles (random materials)
+            const obstacleCount = 2 + Math.floor(gameState.level * 0.8);
+            const materials = ['wood', 'ice', 'stone'];
+            const baseSize = Math.min(LEVEL_WIDTH, LEVEL_HEIGHT) * 0.05;
+            
+            for (let i = 0; i < obstacleCount; i++) {
+                const material = materials[Math.floor(Math.random() * materials.length)];
+                let strength;
+                switch(material) {
+                    case 'wood': strength = WOOD_STRENGTH; break;
+                    case 'ice': strength = ICE_STRENGTH; break;
+                    case 'stone': strength = STONE_STRENGTH; break;
+                }
+                
+                gameState.obstacles.push({
+                    x: LEVEL_WIDTH * 0.6 + Math.random() * LEVEL_WIDTH * 0.3,
+                    y: GROUND_HEIGHT - 100 - Math.random() * (GROUND_HEIGHT - 200),
+                    width: baseSize + Math.random() * baseSize,
+                    height: baseSize + Math.random() * baseSize,
+                    health: strength,
+                    type: material,
+                    rotation: Math.random() * Math.PI * 2
+                });
+            }
+            
+            // Create structures (pyramids, towers, etc.)
+            if (gameState.level > 2) {
+                createStructure(LEVEL_WIDTH * 0.7, GROUND_HEIGHT - 150, 'pyramid', 3 + Math.floor(gameState.level/3));
+            }
+            if (gameState.level > 4) {
+                createStructure(LEVEL_WIDTH * 0.8, GROUND_HEIGHT - 200, 'tower', 2 + Math.floor(gameState.level/4));
+            }
+        }
         
-        ctx.beginPath();
-        ctx.moveTo(x, 40);
-        ctx.quadraticCurveTo(
-            x + curve, 
-            40 - height/2,
-            x + curve/2,
-            40 - height
-        );
-        ctx.stroke();
-        
-        // Add some variation
-        if (Math.random() > 0.7) {
-            ctx.strokeStyle = '#81C784';
-            ctx.beginPath();
-            ctx.moveTo(x + 2, 40);
-            ctx.quadraticCurveTo(
-                x + 2 + curve*0.8, 
-                40 - height/2,
-                x + 2 + curve/2*0.8,
-                40 - height*0.9
+        function createStructure(x, y, type, size) {
+            const baseSize = Math.min(LEVEL_WIDTH, LEVEL_HEIGHT) * 0.05;
+            const spacing = baseSize * 1.5;
+            
+            if (type === 'pyramid') {
+                for (let row = 0; row < size; row++) {
+                    const cols = size - row;
+                    for (let col = 0; col < cols; col++) {
+                        gameState.obstacles.push({
+                            x: x + (col - cols/2 + 0.5) * spacing,
+                            y: y + row * spacing * 0.8,
+                            width: baseSize,
+                            height: baseSize,
+                            health: WOOD_STRENGTH,
+                            type: 'wood',
+                            rotation: 0
+                        });
+                    }
+                }
+            } else if (type === 'tower') {
+                for (let i = 0; i < size; i++) {
+                    gameState.obstacles.push({
+                        x: x,
+                        y: y - i * spacing * 0.8,
+                        width: baseSize + i * 5,
+                        height: baseSize,
+                        health: STONE_STRENGTH,
+                        type: i % 2 === 0 ? 'stone' : 'wood',
+                        rotation: i % 2 === 0 ? Math.PI/4 : 0
+                    });
+                }
+            }
+        }
+
+        // Texture creation functions (improved versions)
+        function createChickenTexture() {
+            const canvas = document.createElement('canvas');
+            canvas.width = CHICKEN_RADIUS * 4;
+            canvas.height = CHICKEN_RADIUS * 4;
+            const ctx = canvas.getContext('2d');
+            const center = CHICKEN_RADIUS * 2;
+            
+            // Body with gradient
+            const bodyGradient = ctx.createRadialGradient(
+                center, center, 0,
+                center, center, CHICKEN_RADIUS * 1.8
             );
-            ctx.stroke();
-            ctx.strokeStyle = '#2E7D32';
-        }
-    }
-    
-    // Flowers and small plants
-    for (let i = 0; i < 30; i++) {
-        const x = Math.random() * LEVEL_WIDTH;
-        const plantType = Math.floor(Math.random() * 3);
-        
-        if (plantType === 0) { // Small flower
-            ctx.fillStyle = '#FFEB3B';
+            bodyGradient.addColorStop(0, '#FFEA00');
+            bodyGradient.addColorStop(1, '#FFA500');
+            ctx.fillStyle = bodyGradient;
             ctx.beginPath();
-            ctx.arc(x, 35, 2, 0, Math.PI * 2);
+            ctx.ellipse(center, center, CHICKEN_RADIUS * 1.5, CHICKEN_RADIUS * 1.8, 0, 0, Math.PI * 2);
             ctx.fill();
             
-            ctx.fillStyle = '#F44336';
-            for (let j = 0; j < 5; j++) {
-                const angle = (j / 5) * Math.PI * 2;
+            // Feather details
+            ctx.strokeStyle = '#FFC600';
+            ctx.lineWidth = 2;
+            for (let i = 0; i < 8; i++) {
+                const angle = (i / 8) * Math.PI * 2;
+                const x1 = center + Math.cos(angle) * CHICKEN_RADIUS * 1.2;
+                const y1 = center + Math.sin(angle) * CHICKEN_RADIUS * 1.2;
+                const x2 = center + Math.cos(angle) * CHICKEN_RADIUS * 1.6;
+                const y2 = center + Math.sin(angle) * CHICKEN_RADIUS * 1.6;
                 ctx.beginPath();
-                ctx.arc(
-                    x + Math.cos(angle) * 4,
-                    35 + Math.sin(angle) * 4,
-                    1.5, 0, Math.PI * 2
-                );
-                ctx.fill();
+                ctx.moveTo(x1, y1);
+                ctx.lineTo(x2, y2);
+                ctx.stroke();
             }
-        } else if (plantType === 1) { // Clover
-            ctx.fillStyle = '#4CAF50';
-            for (let j = 0; j < 3; j++) {
-                const angle = (j / 3) * Math.PI * 2;
-                ctx.beginPath();
-                ctx.ellipse(
-                    x + Math.cos(angle) * 3,
-                    36 + Math.sin(angle) * 3,
-                    3, 2, angle, 0, Math.PI * 2
-                );
-                ctx.fill();
-            }
-        } else { // Tall grass
-            ctx.strokeStyle = '#8BC34A';
-            ctx.lineWidth = 1.2;
+            
+            // Eyes with shine
+            ctx.fillStyle = 'white';
             ctx.beginPath();
-            ctx.moveTo(x, 40);
-            ctx.bezierCurveTo(
-                x + 5, 20,
-                x - 5, 10,
-                x + 3, 5
+            ctx.arc(center - 15, center - 10, 8, 0, Math.PI * 2);
+            ctx.arc(center + 15, center - 10, 8, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.fillStyle = '#333';
+            ctx.beginPath();
+            ctx.arc(center - 15, center - 10, 4, 0, Math.PI * 2);
+            ctx.arc(center + 15, center - 10, 4, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Eye shine
+            ctx.fillStyle = 'white';
+            ctx.beginPath();
+            ctx.arc(center - 17, center - 12, 2, 0, Math.PI * 2);
+            ctx.arc(center + 13, center - 12, 2, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Beak with gradient
+            const beakGradient = ctx.createLinearGradient(
+                center - 10, center + 10,
+                center + 10, center + 20
             );
-            ctx.stroke();
+            beakGradient.addColorStop(0, '#FFC600');
+            beakGradient.addColorStop(1, '#FF6B00');
+            ctx.fillStyle = beakGradient;
+            ctx.beginPath();
+            ctx.moveTo(center - 10, center + 10);
+            ctx.lineTo(center + 10, center + 10);
+            ctx.lineTo(center, center + 20);
+            ctx.fill();
+            
+            // Comb (top of head)
+            ctx.fillStyle = '#FF2800';
+            ctx.beginPath();
+            ctx.moveTo(center - 15, center - 25);
+            ctx.quadraticCurveTo(center, center - 35, center + 15, center - 25);
+            ctx.quadraticCurveTo(center, center - 30, center - 15, center - 25);
+            ctx.fill();
+            
+            return canvas;
         }
-    }
-    
-    return canvas;
-}
+        
+        function createPigTexture() {
+            const canvas = document.createElement('canvas');
+            canvas.width = PIG_RADIUS * 4;
+            canvas.height = PIG_RADIUS * 4;
+            const ctx = canvas.getContext('2d');
+            const center = PIG_RADIUS * 2;
+            
+            // Body with gradient and shading
+            const bodyGradient = ctx.createRadialGradient(
+                center, center, 0,
+                center, center, PIG_RADIUS * 1.8
+            );
+            bodyGradient.addColorStop(0, '#FF9E9E');
+            bodyGradient.addColorStop(1, '#FF6B6B');
+            ctx.fillStyle = bodyGradient;
+            ctx.beginPath();
+            ctx.ellipse(center, center, PIG_RADIUS * 1.6, PIG_RADIUS * 1.8, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Shadow on bottom
+            ctx.fillStyle = 'rgba(200, 100, 100, 0.3)';
+            ctx.beginPath();
+            ctx.ellipse(center, center + PIG_RADIUS * 0.8, 
+                        PIG_RADIUS * 1.5, PIG_RADIUS * 0.8, 0, 0, Math.PI);
+            ctx.fill();
+            
+            // Eyes with cartoon style
+            ctx.fillStyle = 'white';
+            ctx.beginPath();
+            ctx.arc(center - 12, center - 8, 6, 0, Math.PI * 2);
+            ctx.arc(center + 12, center - 8, 6, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.fillStyle = '#333';
+            ctx.beginPath();
+            ctx.arc(center - 12, center - 8, 3, 0, Math.PI * 2);
+            ctx.arc(center + 12, center - 8, 3, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Eye shine
+            ctx.fillStyle = 'white';
+            ctx.beginPath();
+            ctx.arc(center - 13, center - 9, 1.5, 0, Math.PI * 2);
+            ctx.arc(center + 11, center - 9, 1.5, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Nose with nostrils
+            ctx.fillStyle = '#E84C3D';
+            ctx.beginPath();
+            ctx.ellipse(center, center + 5, 10, 8, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.fillStyle = '#C1392B';
+            ctx.beginPath();
+            ctx.arc(center - 4, center + 5, 2, 0, Math.PI * 2);
+            ctx.arc(center + 4, center + 5, 2, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Ears
+            ctx.fillStyle = '#FF6B6B';
+            ctx.beginPath();
+            ctx.moveTo(center - 20, center - 15);
+            ctx.lineTo(center - 25, center - 25);
+            ctx.lineTo(center - 15, center - 20);
+            ctx.fill();
+            
+            ctx.beginPath();
+            ctx.moveTo(center + 20, center - 15);
+            ctx.lineTo(center + 25, center - 25);
+            ctx.lineTo(center + 15, center - 20);
+            ctx.fill();
+            
+            return canvas;
+        }
+        
+        function createWoodTexture() {
+            const size = Math.max(LEVEL_WIDTH, LEVEL_HEIGHT) * 0.1;
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+            
+            // Wood base with gradient
+            const woodGradient = ctx.createLinearGradient(0, 0, 0, size);
+            woodGradient.addColorStop(0, '#8B4513');
+            woodGradient.addColorStop(0.5, '#A0522D');
+            woodGradient.addColorStop(1, '#5D2906');
+            ctx.fillStyle = woodGradient;
+            ctx.fillRect(0, 0, size, size);
+            
+            // Wood grain - more detailed
+            ctx.strokeStyle = 'rgba(60, 30, 10, 0.7)';
+            ctx.lineWidth = 1.5;
+            for (let i = 0; i < 8; i++) {
+                const y = i * (size/8) + Math.random() * (size/16);
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.bezierCurveTo(
+                    size/4, y + Math.random() * (size/20) - size/40,
+                    size*3/4, y + Math.random() * (size/20) - size/40,
+                    size, y + Math.random() * (size/25) - size/50
+                );
+                ctx.stroke();
+                
+                // Add finer grain lines
+                if (i < 7) {
+                    ctx.strokeStyle = 'rgba(60, 30, 10, 0.4)';
+                    ctx.lineWidth = 0.8;
+                    for (let j = 0; j < 3; j++) {
+                        const subY = y + (size/30) + j * (size/40);
+                        ctx.beginPath();
+                        ctx.moveTo(0, subY);
+                        ctx.lineTo(size, subY + Math.random() * (size/25) - size/50);
+                        ctx.stroke();
+                    }
+                    ctx.strokeStyle = 'rgba(60, 30, 10, 0.7)';
+                    ctx.lineWidth = 1.5;
+                }
+            }
+            
+            // Knots and imperfections
+            ctx.fillStyle = 'rgba(40, 20, 5, 0.6)';
+            for (let i = 0; i < 3; i++) {
+                const x = size/4 + Math.random() * size/2;
+                const y = size/4 + Math.random() * size/2;
+                const knotSize = size/20 + Math.random() * size/15;
+                ctx.beginPath();
+                ctx.arc(x, y, knotSize, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Knot rings
+                ctx.strokeStyle = 'rgba(40, 20, 5, 0.8)';
+                ctx.lineWidth = 0.8;
+                ctx.beginPath();
+                ctx.arc(x, y, knotSize * 1.5, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+            
+            return canvas;
+        }
+        
+        function createIceTexture() {
+            const size = Math.max(LEVEL_WIDTH, LEVEL_HEIGHT) * 0.1;
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+            
+            // Ice base with gradient
+            const iceGradient = ctx.createLinearGradient(0, 0, size, size);
+            iceGradient.addColorStop(0, '#B3E5FC');
+            iceGradient.addColorStop(0.5, '#81D4FA');
+            iceGradient.addColorStop(1, '#4FC3F7');
+            ctx.fillStyle = iceGradient;
+            ctx.fillRect(0, 0, size, size);
+            
+            // Frost patterns
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+            ctx.lineWidth = 1.2;
+            for (let i = 0; i < 15; i++) {
+                const x = Math.random() * size;
+                const y = Math.random() * size;
+                const patternSize = size/10 + Math.random() * size/5;
+                
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                for (let j = 0; j < 4; j++) {
+                    const angle = Math.random() * Math.PI * 2;
+                    const length = patternSize * (0.5 + Math.random() * 0.5);
+                    ctx.lineTo(x + Math.cos(angle) * length, y + Math.sin(angle) * length);
+                }
+                ctx.closePath();
+                ctx.stroke();
+            }
+            
+            // Reflective highlights
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(size/2, 0);
+            ctx.lineTo(0, size/2);
+            ctx.fill();
+            
+            ctx.beginPath();
+            ctx.moveTo(size, size);
+            ctx.lineTo(size/2, size);
+            ctx.lineTo(size, size/2);
+            ctx.fill();
+            
+            // Bubbles and imperfections
+            for (let i = 0; i < 8; i++) {
+                const x = Math.random() * size;
+                const y = Math.random() * size;
+                const bubbleSize = size/30 + Math.random() * size/20;
+                
+                ctx.fillStyle = 'rgba(200, 240, 255, 0.8)';
+                ctx.beginPath();
+                ctx.arc(x, y, bubbleSize, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Bubble highlight
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+                ctx.beginPath();
+                ctx.arc(x - bubbleSize/3, y - bubbleSize/3, bubbleSize/3, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            
+            return canvas;
+        }
+        
+        function createStoneTexture() {
+            const size = Math.max(LEVEL_WIDTH, LEVEL_HEIGHT) * 0.1;
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+            
+            // Stone base with gradient
+            const stoneGradient = ctx.createLinearGradient(0, 0, size, size);
+            stoneGradient.addColorStop(0, '#7F7F7F');
+            stoneGradient.addColorStop(0.5, '#999999');
+            stoneGradient.addColorStop(1, '#5F5F5F');
+            ctx.fillStyle = stoneGradient;
+            ctx.fillRect(0, 0, size, size);
+            
+            // Stone texture with noise
+            const imageData = ctx.getImageData(0, 0, size, size);
+            const data = imageData.data;
+            
+            for (let i = 0; i < data.length; i += 4) {
+                // Add grain
+                const grain = Math.random() * 30 - 15;
+                data[i] = Math.min(255, Math.max(0, data[i] + grain));     // R
+                data[i+1] = Math.min(255, Math.max(0, data[i+1] + grain)); // G
+                data[i+2] = Math.min(255, Math.max(0, data[i+2] + grain)); // B
+                
+                // Add some color variation
+                if (Math.random() > 0.7) {
+                    data[i] += Math.random() * 20 - 10;   // More red
+                    data[i+1] += Math.random() * 10 - 5;  // Less green
+                }
+            }
+            
+            ctx.putImageData(imageData, 0, 0);
+            
+            // Stone cracks
+            ctx.strokeStyle = 'rgba(60, 60, 60, 0.6)';
+            ctx.lineWidth = 1.2;
+            for (let i = 0; i < 5; i++) {
+                const x1 = Math.random() * size;
+                const y1 = Math.random() * size;
+                const x2 = x1 + Math.random() * (size/5) - size/10;
+                const y2 = y1 + Math.random() * (size/5) - size/10;
+                
+                ctx.beginPath();
+                ctx.moveTo(x1, y1);
+                for (let j = 0; j < 3; j++) {
+                    const midX = (x1 + x2)/2 + Math.random() * (size/20) - size/40;
+                    const midY = (y1 + y2)/2 + Math.random() * (size/20) - size/40;
+                    ctx.quadraticCurveTo(midX, midY, x2, y2);
+                }
+                ctx.stroke();
+            }
+            
+            // Mineral veins
+            const veinColors = ['#6AB7E6', '#A57FBF', '#E6C36A', '#8FBE8F'];
+            for (let i = 0; i < 3; i++) {
+                const x1 = Math.random() * size;
+                const y1 = Math.random() * size;
+                const length = size/5 + Math.random() * size/3;
+                const angle = Math.random() * Math.PI * 2;
+                const x2 = x1 + Math.cos(angle) * length;
+                const y2 = y1 + Math.sin(angle) * length;
+                
+                ctx.strokeStyle = veinColors[Math.floor(Math.random() * veinColors.length)];
+                ctx.lineWidth = 0.8 + Math.random() * 1.5;
+                ctx.beginPath();
+                ctx.moveTo(x1, y1);
+                ctx.lineTo(x2, y2);
+                ctx.stroke();
+            }
+            
+            return canvas;
+        }
+        
+        function createGroundTexture() {
+            const canvas = document.createElement('canvas');
+            canvas.width = LEVEL_WIDTH;
+            canvas.height = LEVEL_HEIGHT - GROUND_HEIGHT + 50;
+            const ctx = canvas.getContext('2d');
+            
+            // Dirt base
+            const dirtGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            dirtGradient.addColorStop(0, '#5D4037');
+            dirtGradient.addColorStop(0.7, '#3E2723');
+            dirtGradient.addColorStop(1, '#1B0000');
+            ctx.fillStyle = dirtGradient;
+            ctx.fillRect(0, 0, LEVEL_WIDTH, canvas.height);
+            
+            // Grass layer
+            const grassGradient = ctx.createLinearGradient(0, 0, 0, 40);
+            grassGradient.addColorStop(0, '#4CAF50');
+            grassGradient.addColorStop(0.5, '#388E3C');
+            grassGradient.addColorStop(1, '#2E7D32');
+            ctx.fillStyle = grassGradient;
+            ctx.fillRect(0, 0, LEVEL_WIDTH, 40);
+            
+            // Grass blades
+            ctx.strokeStyle = '#2E7D32';
+            ctx.lineWidth = 1.5;
+            const grassCount = Math.floor(LEVEL_WIDTH / 10);
+            for (let i = 0; i < grassCount; i++) {
+                const x = Math.random() * LEVEL_WIDTH;
+                const height = 10 + Math.random() * 30;
+                const curve = Math.random() * 20 - 10;
+                
+                ctx.beginPath();
+                ctx.moveTo(x, 40);
+                ctx.quadraticCurveTo(
+                    x + curve, 
+                    40 - height/2,
+                    x + curve/2,
+                    40 - height
+                );
+                ctx.stroke();
+                
+                // Add some variation
+                if (Math.random() > 0.7) {
+                    ctx.strokeStyle = '#81C784';
+                    ctx.beginPath();
+                    ctx.moveTo(x + 2, 40);
+                    ctx.quadraticCurveTo(
+                        x + 2 + curve*0.8, 
+                        40 - height/2,
+                        x + 2 + curve/2*0.8,
+                        40 - height*0.9
+                    );
+                    ctx.stroke();
+                    ctx.strokeStyle = '#2E7D32';
+                }
+            }
+            
+            // Flowers and small plants
+            const plantCount = Math.floor(LEVEL_WIDTH / 50);
+            for (let i = 0; i < plantCount; i++) {
+                const x = Math.random() * LEVEL_WIDTH;
+                const plantType = Math.floor(Math.random() * 3);
+                
+                if (plantType === 0) { // Small flower
+                    ctx.fillStyle = '#FFEB3B';
+                    ctx.beginPath();
+                    ctx.arc(x, 35, 2, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    ctx.fillStyle = '#F44336';
+                    for (let j = 0; j < 5; j++) {
+                        const angle = (j / 5) * Math.PI * 2;
+                        ctx.beginPath();
+                        ctx.arc(
+                            x + Math.cos(angle) * 4,
+                            35 + Math.sin(angle) * 4,
+                            1.5, 0, Math.PI * 2
+                        );
+                        ctx.fill();
+                    }
+                } else if (plantType === 1) { // Clover
+                    ctx.fillStyle = '#4CAF50';
+                    for (let j = 0; j < 3; j++) {
+                        const angle = (j / 3) * Math.PI * 2;
+                        ctx.beginPath();
+                        ctx.ellipse(
+                            x + Math.cos(angle) * 3,
+                            36 + Math.sin(angle) * 3,
+                            3, 2, angle, 0, Math.PI * 2
+                        );
+                        ctx.fill();
+                    }
+                } else { // Tall grass
+                    ctx.strokeStyle = '#8BC34A';
+                    ctx.lineWidth = 1.2;
+                    ctx.beginPath();
+                    ctx.moveTo(x, 40);
+                    ctx.bezierCurveTo(
+                        x + 5, 20,
+                        x - 5, 10,
+                        x + 3, 5
+                    );
+                    ctx.stroke();
+                }
+            }
+            
+            return canvas;
+        }
+        
+        function createSlingshotTexture() {
+            const size = Math.min(LEVEL_WIDTH, LEVEL_HEIGHT) * 0.15;
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+            
+            // Poles with wood texture
+            ctx.fillStyle = '#5D2906';
+            ctx.fillRect(size*0.35, size*0.7, size*0.08, size*0.3);
+            ctx.fillRect(size*0.6, size*0.7, size*0.08, size*0.3);
+            
+            // Pole details
+            ctx.strokeStyle = '#8B4513';
+            ctx.lineWidth = size*0.02;
+            for (let i = 0; i < 4; i++) {
+                ctx.beginPath();
+                ctx.moveTo(size*0.39, size*0.7 + i * size*0.08);
+                ctx.lineTo(size*0.39, size*0.7 + (i + 1) * size*0.08);
+                ctx.stroke();
+                
+                ctx.beginPath();
+                ctx.moveTo(size*0.64, size*0.7 + i * size*0.08);
+                ctx.lineTo(size*0.64, size*0.7 + (i + 1) * size*0.08);
+                ctx.stroke();
+            }
+            
+            // Crossbar
+            ctx.fillStyle = '#5D2906';
+            ctx.fillRect(size*0.39, size*0.5, size*0.3, size*0.08);
+            
+            // Rubber bands
+            const bandGradient = ctx.createLinearGradient(size*0.4, size*0.5, size*0.4, size*0.8);
+            bandGradient.addColorStop(0, '#C62828');
+            bandGradient.addColorStop(1, '#E53935');
+            
+            ctx.strokeStyle = bandGradient;
+            ctx.lineWidth = size*0.04;
+            ctx.lineCap = 'round';
+            
+            // Left band
+            ctx.beginPath();
+            ctx.moveTo(size*0.4, size*0.5);
+            ctx.quadraticCurveTo(size*0.25, size*0.6, size*0.4, size*0.8);
+            ctx.stroke();
+            
+            // Right band
+            ctx.beginPath();
+            ctx.moveTo(size*0.7, size*0.5);
+            ctx.quadraticCurveTo(size*0.85, size*0.6, size*0.7, size*0.8);
+            ctx.stroke();
+            
+            // Pouch
+            ctx.fillStyle = '#5D2906';
+            ctx.beginPath();
+            ctx.moveTo(size*0.4, size*0.8);
+            ctx.quadraticCurveTo(size*0.55, size*0.85, size*0.7, size*0.8);
+            ctx.quadraticCurveTo(size*0.55, size*0.75, size*0.4, size*0.8);
+            ctx.fill();
+            
+            // Stitching
+            ctx.strokeStyle = '#8B4513';
+            ctx.lineWidth = size*0.008;
+            for (let i = 0; i < 3; i++) {
+                const y = size*0.78 + i * size*0.01;
+                ctx.beginPath();
+                ctx.moveTo(size*0.42, y);
+                ctx.lineTo(size*0.68, y);
+                ctx.stroke();
+            }
+            
+            return canvas;
+        }
+        
+        function createExplosionTexture() {
+            const size = Math.min(LEVEL_WIDTH, LEVEL_HEIGHT) * 0.2;
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+            
+            // Core of explosion
+            const coreGradient = ctx.createRadialGradient(
+                size/2, size/2, 0,
+                size/2, size/2, size/2
+            );
+            coreGradient.addColorStop(0, 'rgba(255, 200, 0, 1)');
+            coreGradient.addColorStop(0.3, 'rgba(255, 100, 0, 0.8)');
+            coreGradient.addColorStop(0.6, 'rgba(255, 50, 0, 0.5)');
+            coreGradient.addColorStop(1, 'rgba(255, 0, 0, 0)');
+            
+            ctx.fillStyle = coreGradient;
+            ctx.fillRect(0, 0, size, size);
+            
+            // Fire tendrils
+            for (let i = 0; i < 12; i++) {
+                const angle = (i / 12) * Math.PI * 2;
+                const length = size*0.3 + Math.random() * size*0.2;
+                const x2 = size/2 + Math.cos(angle) * length;
+                const y2 = size/2 + Math.sin(angle) * length;
+                
+                const fireGradient = ctx.createLinearGradient(
+                    size/2, size/2,
+                    x2, y2
+                );
+                fireGradient.addColorStop(0, 'rgba(255, 200, 0, 0.8)');
+                fireGradient.addColorStop(1, 'rgba(255, 50, 0, 0)');
+                
+                ctx.strokeStyle = fireGradient;
+                ctx.lineWidth = size*0.03 + Math.random() * size*0.04;
+                ctx.beginPath();
+                ctx.moveTo(size/2, size/2);
+                
+                // Make the tendril wavy
+                const midX = (size/2 + x2)/2 + (Math.random() * size*0.05 - size*0.025);
+                const midY = (size/2 + y2)/2 + (Math.random() * size*0.05 - size*0.025);
+                ctx.quadraticCurveTo(midX, midY, x2, y2);
+                ctx.stroke();
+            }
+            
+            // Smoke
+            for (let i = 0; i < 8; i++) {
+                const angle = (i / 8) * Math.PI * 2;
+                const length = size*0.2 + Math.random() * size*0.15;
+                const x = size/2 + Math.cos(angle) * length;
+                const y = size/2 + Math.sin(angle) * length;
+                const smokeSize = size*0.05 + Math.random() * size*0.1;
+                
+                ctx.fillStyle = `rgba(100, 100, 100, ${0.2 + Math.random() * 0.3})`;
+                ctx.beginPath();
+                ctx.arc(x, y, smokeSize, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            
+            // Sparkles
+            for (let i = 0; i < 20; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const length = Math.random() * size*0.4;
+                const x = size/2 + Math.cos(angle) * length;
+                const y = size/2 + Math.sin(angle) * length;
+                
+                ctx.fillStyle = `rgba(255, 255, 255, ${0.5 + Math.random() * 0.5})`;
+                ctx.beginPath();
+                ctx.arc(x, y, size*0.01 + Math.random() * size*0.02, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            
+            return canvas;
+        }
 
-function createSlingshotTexture() {
-    const canvas = document.createElement('canvas');
-    canvas.width = 120;
-    canvas.height = 120;
-    const ctx = canvas.getContext('2d');
-    
-    // Poles with wood texture
-    ctx.fillStyle = '#5D2906';
-    ctx.fillRect(40, 80, 10, 40);
-    ctx.fillRect(70, 80, 10, 40);
-    
-    // Pole details
-    ctx.strokeStyle = '#8B4513';
-    ctx.lineWidth = 2;
-    for (let i = 0; i < 4; i++) {
-        ctx.beginPath();
-        ctx.moveTo(45, 80 + i * 10);
-        ctx.lineTo(45, 80 + (i + 1) * 10);
-        ctx.stroke();
+        // Game mechanics
+        function launchChicken(dx, dy) {
+            if (gameState.chickens <= 0) return;
+            
+            gameState.chickens--;
+            chickenCountEl.textContent = gameState.chickens;
+            
+            gameState.launchedChickens.push({
+                x: gameState.slingshot.x,
+                y: gameState.slingshot.y,
+                dx: dx * 0.2,
+                dy: dy * 0.2,
+                radius: CHICKEN_RADIUS,
+                rotation: 0
+            });
+        }
         
-        ctx.beginPath();
-        ctx.moveTo(75, 80 + i * 10);
-        ctx.lineTo(75, 80 + (i + 1) * 10);
-        ctx.stroke();
-    }
-    
-    // Crossbar
-    ctx.fillStyle = '#5D2906';
-    ctx.fillRect(45, 60, 30, 10);
-    
-    // Rubber bands
-    const bandGradient = ctx.createLinearGradient(50, 60, 50, 90);
-    bandGradient.addColorStop(0, '#C62828');
-    bandGradient.addColorStop(1, '#E53935');
-    
-    ctx.strokeStyle = bandGradient;
-    ctx.lineWidth = 4;
-    ctx.lineCap = 'round';
-    
-    // Left band
-    ctx.beginPath();
-    ctx.moveTo(50, 60);
-    ctx.quadraticCurveTo(30, 70, 50, 90);
-    ctx.stroke();
-    
-    // Right band
-    ctx.beginPath();
-    ctx.moveTo(80, 60);
-    ctx.quadraticCurveTo(100, 70, 80, 90);
-    ctx.stroke();
-    
-    // Pouch
-    ctx.fillStyle = '#5D2906';
-    ctx.beginPath();
-    ctx.moveTo(50, 90);
-    ctx.quadraticCurveTo(65, 95, 80, 90);
-    ctx.quadraticCurveTo(65, 85, 50, 90);
-    ctx.fill();
-    
-    // Stitching
-    ctx.strokeStyle = '#8B4513';
-    ctx.lineWidth = 1;
-    for (let i = 0; i < 3; i++) {
-        const y = 88 + i;
-        ctx.beginPath();
-        ctx.moveTo(52, y);
-        ctx.lineTo(78, y);
-        ctx.stroke();
-    }
-    
-    return canvas;
-}
+        function createParticles(x, y, count, color, speed) {
+            for (let i = 0; i < count; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const velocity = Math.random() * speed;
+                
+                gameState.particles.push({
+                    x: x,
+                    y: y,
+                    dx: Math.cos(angle) * velocity,
+                    dy: Math.sin(angle) * velocity,
+                    radius: Math.random() * 3 + 1,
+                    color: color,
+                    life: 1,
+                    decay: Math.random() * 0.02 + 0.01
+                });
+            }
+        }
+        
+        function createDebris(x, y, width, height, type) {
+            const pieceCount = 3 + Math.floor(Math.random() * 3);
+            const colors = {
+                wood: ['#8B4513', '#5D2906', '#A0522D'],
+                ice: ['#ADD8E6', '#87CEEB', '#E0FFFF'],
+                stone: ['#808080', '#A9A9A9', '#696969']
+            };
+            
+            for (let i = 0; i < pieceCount; i++) {
+                const pieceWidth = width / 2;
+                const pieceHeight = height / 2;
+                
+                gameState.obstacles.push({
+                    x: x + Math.random() * width - width/2,
+                    y: y + Math.random() * height - height/2,
+                    width: pieceWidth,
+                    height: pieceHeight,
+                    dx: (Math.random() - 0.5) * 5,
+                    dy: (Math.random() - 0.5) * 5,
+                    health: 1,
+                    type: type,
+                    rotation: Math.random() * Math.PI * 2,
+                    rotationSpeed: (Math.random() - 0.5) * 0.1,
+                    isDebris: true
+                });
+            }
+        }
 
-function createExplosionTexture() {
-    const canvas = document.createElement('canvas');
-    canvas.width = 100;
-    canvas.height = 100;
-    const ctx = canvas.getContext('2d');
-    
-    // Core of explosion
-    const coreGradient = ctx.createRadialGradient(
-        50, 50, 0,
-        50, 50, 50
-    );
-    coreGradient.addColorStop(0, 'rgba(255, 200, 0, 1)');
-    coreGradient.addColorStop(0.3, 'rgba(255, 100, 0, 0.8)');
-    coreGradient.addColorStop(0.6, 'rgba(255, 50, 0, 0.5)');
-    coreGradient.addColorStop(1, 'rgba(255, 0, 0, 0)');
-    
-    ctx.fillStyle = coreGradient;
-    ctx.fillRect(0, 0, 100, 100);
-    
-    // Fire tendrils
-    for (let i = 0; i < 12; i++) {
-        const angle = (i / 12) * Math.PI * 2;
-        const length = 30 + Math.random() * 20;
-        const x2 = 50 + Math.cos(angle) * length;
-        const y2 = 50 + Math.sin(angle) * length;
+        // Update game state
+        function update(timestamp) {
+            if (!gameState.lastTime) {
+                gameState.lastTime = timestamp;
+            }
+            gameState.deltaTime = (timestamp - gameState.lastTime) / 1000;
+            gameState.lastTime = timestamp;
+            
+            // Update chickens
+            for (let i = gameState.launchedChickens.length - 1; i >= 0; i--) {
+                const chicken = gameState.launchedChickens[i];
+                
+                // Apply gravity
+                chicken.dy += 15 * gameState.deltaTime;
+                
+                // Update position
+                chicken.x += chicken.dx * gameState.deltaTime * 60;
+                chicken.y += chicken.dy * gameState.deltaTime * 60;
+                chicken.rotation = Math.atan2(chicken.dy, chicken.dx);
+                
+                // Check boundaries
+                if (chicken.x < -50 || chicken.x > LEVEL_WIDTH + 50 || chicken.y > LEVEL_HEIGHT + 50) {
+                    gameState.launchedChickens.splice(i, 1);
+                    continue;
+                }
+                
+                // Check collisions with targets
+                for (let j = gameState.targets.length - 1; j >= 0; j--) {
+                    const target = gameState.targets[j];
+                    const dist = Math.sqrt(
+                        Math.pow(chicken.x - target.x, 2) + 
+                        Math.pow(chicken.y - target.y, 2)
+                    );
+                    
+                    if (dist < chicken.radius + target.radius) {
+                        // Create explosion
+                        createParticles(target.x, target.y, 15, '#FF6B6B', 8);
+                        createParticles(target.x, target.y, 10, '#FFD700', 5);
+                        
+                        // Remove target
+                        gameState.targets.splice(j, 1);
+                        gameState.score += 100 * gameState.level;
+                        scoreEl.textContent = gameState.score;
+                        
+                        // Remove chicken
+                        gameState.launchedChickens.splice(i, 1);
+                        
+                        // Check if all targets are gone
+                        if (gameState.targets.length === 0 && !gameState.levelComplete) {
+                            gameState.levelComplete = true;
+                            showMessage("Level Complete!");
+                            setTimeout(() => {
+                                advanceLevel();
+                            }, 2000);
+                        }
+                        break;
+                    }
+                }
+                
+                // Check collisions with obstacles
+                for (let j = gameState.obstacles.length - 1; j >= 0; j--) {
+                    const obstacle = gameState.obstacles[j];
+                    
+                    // Rotated rectangle collision
+                    const dx = chicken.x - obstacle.x;
+                    const dy = chicken.y - obstacle.y;
+                    
+                    // Rotate the chicken position to align with the obstacle's rotation
+                    const rotatedX = dx * Math.cos(-obstacle.rotation) - dy * Math.sin(-obstacle.rotation);
+                    const rotatedY = dx * Math.sin(-obstacle.rotation) + dy * Math.cos(-obstacle.rotation);
+                    
+                    if (
+                        Math.abs(rotatedX) < obstacle.width/2 + chicken.radius &&
+                        Math.abs(rotatedY) < obstacle.height/2 + chicken.radius
+                    ) {
+                        // Damage obstacle
+                        obstacle.health--;
+                        
+                        // Create particles based on material
+                        let particleColor;
+                        switch(obstacle.type) {
+                            case 'wood': particleColor = '#8B4513'; break;
+                            case 'ice': particleColor = '#ADD8E6'; break;
+                            case 'stone': particleColor = '#808080'; break;
+                        }
+                        createParticles(chicken.x, chicken.y, 10, particleColor, 5);
+                        
+                        if (obstacle.health <= 0) {
+                            // Create debris
+                            createDebris(obstacle.x, obstacle.y, obstacle.width, obstacle.height, obstacle.type);
+                            
+                            // Remove obstacle
+                            gameState.obstacles.splice(j, 1);
+                            gameState.score += 50 * gameState.level;
+                            scoreEl.textContent = gameState.score;
+                        }
+                        
+                        // Remove chicken
+                        gameState.launchedChickens.splice(i, 1);
+                        break;
+                    }
+                }
+            }
+            
+            // Update obstacles (for debris)
+            for (let i = gameState.obstacles.length - 1; i >= 0; i--) {
+                const obstacle = gameState.obstacles[i];
+                
+                if (obstacle.isDebris) {
+                    // Apply gravity
+                    obstacle.dy += 10 * gameState.deltaTime;
+                    
+                    // Update position
+                    obstacle.x += obstacle.dx * gameState.deltaTime * 60;
+                    obstacle.y += obstacle.dy * gameState.deltaTime * 60;
+                    obstacle.rotation += obstacle.rotationSpeed;
+                    
+                    // Remove if out of bounds
+                    if (obstacle.y > LEVEL_HEIGHT + 50) {
+                        gameState.obstacles.splice(i, 1);
+                    }
+                }
+            }
+            
+            // Update particles
+            for (let i = gameState.particles.length - 1; i >= 0; i--) {
+                const particle = gameState.particles[i];
+                
+                // Apply gravity
+                particle.dy += 2 * gameState.deltaTime;
+                
+                // Update position
+                particle.x += particle.dx * gameState.deltaTime * 60;
+                particle.y += particle.dy * gameState.deltaTime * 60;
+                
+                // Update life
+                particle.life -= particle.decay;
+                
+                // Remove if dead
+                if (particle.life <= 0) {
+                    gameState.particles.splice(i, 1);
+                }
+            }
+            
+            // Check game over
+            if (gameState.chickens <= 0 && gameState.launchedChickens.length === 0 && !gameState.levelComplete && !gameState.gameOver) {
+                if (gameState.targets.length > 0) {
+                    gameState.gameOver = true;
+                    showMessage("Game Over!");
+                }
+            }
+        }
         
-        const fireGradient = ctx.createLinearGradient(
-            50, 50,
-            x2, y2
-        );
-        fireGradient.addColorStop(0, 'rgba(255, 200, 0, 0.8)');
-        fireGradient.addColorStop(1, 'rgba(255, 50, 0, 0)');
+        function advanceLevel() {
+            gameState.level++;
+            levelEl.textContent = gameState.level;
+            gameState.chickens += 2;
+            chickenCountEl.textContent = gameState.chickens;
+            resetGameState();
+            generateLevel();
+        }
         
-        ctx.strokeStyle = fireGradient;
-        ctx.lineWidth = 3 + Math.random() * 4;
-        ctx.beginPath();
-        ctx.moveTo(50, 50);
+        function showMessage(text) {
+            messageEl.textContent = text;
+            messageEl.style.opacity = 1;
+            setTimeout(() => {
+                messageEl.style.opacity = 0;
+            }, 1500);
+        }
+
+        // Rendering
+        function render() {
+            ctx.clearRect(0, 0, LEVEL_WIDTH, LEVEL_HEIGHT);
+            
+            // Draw sky background
+            const skyGradient = ctx.createLinearGradient(0, 0, 0, LEVEL_HEIGHT);
+            skyGradient.addColorStop(0, '#87CEEB');
+            skyGradient.addColorStop(1, '#1E90FF');
+            ctx.fillStyle = skyGradient;
+            ctx.fillRect(0, 0, LEVEL_WIDTH, LEVEL_HEIGHT);
+            
+            // Draw ground
+            ctx.drawImage(textures.ground, 0, GROUND_HEIGHT);
+            
+            // Draw slingshot
+            ctx.save();
+            const slingshotSize = Math.min(LEVEL_WIDTH, LEVEL_HEIGHT) * 0.15;
+            ctx.translate(
+                gameState.slingshot.x - slingshotSize/2,
+                gameState.slingshot.y - slingshotSize/2
+            );
+            ctx.drawImage(textures.slingshot, 0, 0, slingshotSize, slingshotSize);
+            ctx.restore();
+            
+            // Draw obstacles
+            gameState.obstacles.forEach(obstacle => {
+                ctx.save();
+                ctx.translate(obstacle.x, obstacle.y);
+                ctx.rotate(obstacle.rotation);
+                
+                switch(obstacle.type) {
+                    case 'wood':
+                        ctx.drawImage(textures.wood, -obstacle.width/2, -obstacle.height/2, obstacle.width, obstacle.height);
+                        break;
+                    case 'ice':
+                        ctx.drawImage(textures.ice, -obstacle.width/2, -obstacle.height/2, obstacle.width, obstacle.height);
+                        break;
+                    case 'stone':
+                        ctx.drawImage(textures.stone, -obstacle.width/2, -obstacle.height/2, obstacle.width, obstacle.height);
+                        break;
+                }
+                
+                // Show health for non-debris
+                if (!obstacle.isDebris && obstacle.health < (obstacle.type === 'wood' ? WOOD_STRENGTH : obstacle.type === 'ice' ? ICE_STRENGTH : STONE_STRENGTH)) {
+                    ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
+                    ctx.fillRect(-obstacle.width/2, -obstacle.height/2 - 10, 
+                                obstacle.width * (obstacle.health / (obstacle.type === 'wood' ? WOOD_STRENGTH : obstacle.type === 'ice' ? ICE_STRENGTH : STONE_STRENGTH)), 
+                                5);
+                }
+                
+                ctx.restore();
+            });
+            
+            // Draw targets
+            gameState.targets.forEach(target => {
+                ctx.drawImage(
+                    textures.pig, 
+                    target.x - target.radius, 
+                    target.y - target.radius, 
+                    target.radius * 2, 
+                    target.radius * 2
+                );
+            });
+            
+            // Draw chickens
+            gameState.launchedChickens.forEach(chicken => {
+                ctx.save();
+                ctx.translate(chicken.x, chicken.y);
+                ctx.rotate(chicken.rotation);
+                ctx.drawImage(
+                    textures.chicken, 
+                    -chicken.radius, 
+                    -chicken.radius, 
+                    chicken.radius * 2, 
+                    chicken.radius * 2
+                );
+                ctx.restore();
+            });
+            
+            // Draw current chicken if dragging
+            if (gameState.currentChicken) {
+                ctx.save();
+                ctx.translate(gameState.currentChicken.x, gameState.currentChicken.y);
+                ctx.rotate(Math.atan2(
+                    gameState.currentChicken.y - gameState.slingshot.y,
+                    gameState.currentChicken.x - gameState.slingshot.x
+                ));
+                ctx.drawImage(
+                    textures.chicken, 
+                    -CHICKEN_RADIUS, 
+                    -CHICKEN_RADIUS, 
+                    CHICKEN_RADIUS * 2, 
+                    CHICKEN_RADIUS * 2
+                );
+                ctx.restore();
+                
+                // Draw rubber band
+                ctx.strokeStyle = '#FF0000';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(gameState.slingshot.x, gameState.slingshot.y);
+                ctx.lineTo(gameState.currentChicken.x, gameState.currentChicken.y);
+                ctx.stroke();
+            } else if (gameState.chickens > 0 && !gameState.dragging && gameState.launchedChickens.length === 0) {
+                // Draw next chicken in slingshot
+                ctx.drawImage(
+                    textures.chicken, 
+                    gameState.slingshot.x - CHICKEN_RADIUS, 
+                    gameState.slingshot.y - CHICKEN_RADIUS, 
+                    CHICKEN_RADIUS * 2, 
+                    CHICKEN_RADIUS * 2
+                );
+            }
+            
+            // Draw particles
+            gameState.particles.forEach(particle => {
+                ctx.globalAlpha = particle.life;
+                ctx.fillStyle = particle.color;
+                ctx.beginPath();
+                ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.globalAlpha = 1;
+            });
+        }
+
+        // Game loop
+        function gameLoop(timestamp) {
+            update(timestamp);
+            render();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Event listeners
+        canvas.addEventListener('mousedown', (e) => {
+            if (gameState.gameOver || gameState.levelComplete || gameState.chickens <= 0) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+            
+            // Check if clicking near slingshot
+            if (
+                Math.sqrt(
+                    Math.pow(mouseX - gameState.slingshot.x, 2) + 
+                    Math.pow(mouseY - gameState.slingshot.y, 2)
+                ) < CHICKEN_RADIUS * 2
+            ) {
+                gameState.dragging = true;
+                gameState.currentChicken = {
+                    x: mouseX,
+                    y: mouseY
+                };
+            }
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (gameState.dragging && gameState.currentChicken) {
+                const rect = canvas.getBoundingClientRect();
+                gameState.currentChicken.x = e.clientX - rect.left;
+                gameState.currentChicken.y = e.clientY - rect.top;
+                
+                // Limit drag distance
+                const maxDistance = Math.min(LEVEL_WIDTH, LEVEL_HEIGHT) * 0.2;
+                const dx = gameState.currentChicken.x - gameState.slingshot.x;
+                const dy = gameState.currentChicken.y - gameState.slingshot.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance > maxDistance) {
+                    const angle = Math.atan2(dy, dx);
+                    gameState.currentChicken.x = gameState.slingshot.x + Math.cos(angle) * maxDistance;
+                    gameState.currentChicken.y = gameState.slingshot.y + Math.sin(angle) * maxDistance;
+                }
+            }
+        });
+
+        canvas.addEventListener('mouseup', (e) => {
+            if (gameState.dragging && gameState.currentChicken) {
+                const dx = gameState.slingshot.x - gameState.currentChicken.x;
+                const dy = gameState.slingshot.y - gameState.currentChicken.y;
+                launchChicken(dx, dy);
+                gameState.dragging = false;
+                gameState.currentChicken = null;
+            }
+        });
         
-        // Make the tendril wavy
-        const midX = (50 + x2)/2 + (Math.random() * 10 - 5);
-        const midY = (50 + y2)/2 + (Math.random() * 10 - 5);
-        ctx.quadraticCurveTo(midX, midY, x2, y2);
-        ctx.stroke();
-    }
-    
-    // Smoke
-    for (let i = 0; i < 8; i++) {
-        const angle = (i / 8) * Math.PI * 2;
-        const length = 20 + Math.random() * 15;
-        const x = 50 + Math.cos(angle) * length;
-        const y = 50 + Math.sin(angle) * length;
-        const size = 5 + Math.random() * 10;
+        // Touch support
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            if (gameState.gameOver || gameState.levelComplete || gameState.chickens <= 0) return;
+            
+            const touch = e.touches[0];
+            const rect = canvas.getBoundingClientRect();
+            const touchX = touch.clientX - rect.left;
+            const touchY = touch.clientY - rect.top;
+            
+            if (
+                Math.sqrt(
+                    Math.pow(touchX - gameState.slingshot.x, 2) + 
+                    Math.pow(touchY - gameState.slingshot.y, 2)
+                ) < CHICKEN_RADIUS * 2
+            ) {
+                gameState.dragging = true;
+                gameState.currentChicken = {
+                    x: touchX,
+                    y: touchY
+                };
+            }
+        });
         
-        ctx.fillStyle = `rgba(100, 100, 100, ${0.2 + Math.random() * 0.3})`;
-        ctx.beginPath();
-        ctx.arc(x, y, size, 0, Math.PI * 2);
-        ctx.fill();
-    }
-    
-    // Sparkles
-    for (let i = 0; i < 20; i++) {
-        const angle = Math.random() * Math.PI * 2;
-        const length = Math.random() * 40;
-        const x = 50 + Math.cos(angle) * length;
-        const y = 50 + Math.sin(angle) * length;
+        canvas.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            if (gameState.dragging && gameState.currentChicken) {
+                const touch = e.touches[0];
+                const rect = canvas.getBoundingClientRect();
+                gameState.currentChicken.x = touch.clientX - rect.left;
+                gameState.currentChicken.y = touch.clientY - rect.top;
+                
+                // Limit drag distance
+                const maxDistance = Math.min(LEVEL_WIDTH, LEVEL_HEIGHT) * 0.2;
+                const dx = gameState.currentChicken.x - gameState.slingshot.x;
+                const dy = gameState.currentChicken.y - gameState.slingshot.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance > maxDistance) {
+                    const angle = Math.atan2(dy, dx);
+                    gameState.currentChicken.x = gameState.slingshot.x + Math.cos(angle) * maxDistance;
+                    gameState.currentChicken.y = gameState.slingshot.y + Math.sin(angle) * maxDistance;
+                }
+            }
+        });
         
-        ctx.fillStyle = `rgba(255, 255, 255, ${0.5 + Math.random() * 0.5})`;
-        ctx.beginPath();
-        ctx.arc(x, y, 1 + Math.random() * 2, 0, Math.PI * 2);
-        ctx.fill();
-    }
-    
-    return canvas;
-}
+        canvas.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            if (gameState.dragging && gameState.currentChicken) {
+                const dx = gameState.slingshot.x - gameState.currentChicken.x;
+                const dy = gameState.slingshot.y - gameState.currentChicken.y;
+                launchChicken(dx, dy);
+                gameState.dragging = false;
+                gameState.currentChicken = null;
+            }
+        });
+
+        restartBtn.addEventListener('click', () => {
+            gameState.chickens = 20;
+            chickenCountEl.textContent = gameState.chickens;
+            resetGameState();
+            generateLevel();
+        });
+
+        newGameBtn.addEventListener('click', () => {
+            gameState.chickens = 20;
+            gameState.score = 0;
+            gameState.level = 1;
+            chickenCountEl.textContent = gameState.chickens;
+            scoreEl.textContent = gameState.score;
+            levelEl.textContent = gameState.level;
+            resetGameState();
+            generateLevel();
+        });
+
+        // Start the game
+        initGame();
+    </script>
+</body>
+</html>
