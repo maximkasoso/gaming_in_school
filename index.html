@@ -84,7 +84,7 @@
 <body>
     <div id="gameContainer">
         <div id="ui">
-            <div>Chickens: <span id="chickenCount">5</span></div>
+            <div>Chickens: <span id="chickenCount">20</span></div>
             <div>Score: <span id="score">0</span></div>
             <div>Level: <span id="level">1</span></div>
         </div>
@@ -105,6 +105,8 @@
         const ICE_STRENGTH = 1;
         const STONE_STRENGTH = 5;
         const GROUND_HEIGHT_RATIO = 0.85; // Percentage of screen height for ground
+        const TRAJECTORY_POINTS = 30; // Number of points to show in trajectory
+        const TRAJECTORY_STEP = 0.2; // Time step for trajectory calculation
 
         // Game setup
         const canvas = document.getElementById('gameCanvas');
@@ -167,7 +169,7 @@
 
         // Game state
         let gameState = {
-            chickens: 5,
+            chickens: 20, // Changed from 5 to 20
             score: 0,
             level: 1,
             launchedChickens: [],
@@ -180,7 +182,8 @@
             gameOver: false,
             levelComplete: false,
             lastTime: 0,
-            deltaTime: 0
+            deltaTime: 0,
+            trajectoryPoints: [] // Array to store trajectory points
         };
 
         // Initialize game
@@ -201,6 +204,7 @@
             gameState.currentChicken = null;
             gameState.gameOver = false;
             gameState.levelComplete = false;
+            gameState.trajectoryPoints = [];
         }
 
         function generateLevel() {
@@ -288,7 +292,7 @@
             }
         }
 
-        // Texture creation functions (improved versions)
+        // Texture creation functions (same as before)
         function createChickenTexture() {
             const canvas = document.createElement('canvas');
             canvas.width = CHICKEN_RADIUS * 4;
@@ -929,6 +933,31 @@
             });
         }
         
+        function calculateTrajectory(dx, dy) {
+            const points = [];
+            let x = gameState.slingshot.x;
+            let y = gameState.slingshot.y;
+            let velX = dx * 0.2;
+            let velY = dy * 0.2;
+            
+            for (let i = 0; i < TRAJECTORY_POINTS; i++) {
+                points.push({ x, y });
+                
+                // Apply physics
+                velY += 15 * TRAJECTORY_STEP;
+                x += velX * TRAJECTORY_STEP * 60;
+                y += velY * TRAJECTORY_STEP * 60;
+                
+                // Stop if hits ground
+                if (y > GROUND_HEIGHT) {
+                    points.push({ x, y: GROUND_HEIGHT });
+                    break;
+                }
+            }
+            
+            return points;
+        }
+        
         function createParticles(x, y, count, color, speed) {
             for (let i = 0; i < count; i++) {
                 const angle = Math.random() * Math.PI * 2;
@@ -1248,6 +1277,33 @@
                 ctx.moveTo(gameState.slingshot.x, gameState.slingshot.y);
                 ctx.lineTo(gameState.currentChicken.x, gameState.currentChicken.y);
                 ctx.stroke();
+                
+                // Draw trajectory
+                if (gameState.trajectoryPoints.length > 1) {
+                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(gameState.currentChicken.x, gameState.currentChicken.y);
+                    
+                    for (let i = 0; i < gameState.trajectoryPoints.length; i++) {
+                        ctx.lineTo(gameState.trajectoryPoints[i].x, gameState.trajectoryPoints[i].y);
+                    }
+                    ctx.stroke();
+                    
+                    // Draw dots along trajectory
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+                    for (let i = 0; i < gameState.trajectoryPoints.length; i++) {
+                        if (i % 3 === 0) { // Draw every 3rd point to reduce clutter
+                            ctx.beginPath();
+                            ctx.arc(
+                                gameState.trajectoryPoints[i].x, 
+                                gameState.trajectoryPoints[i].y, 
+                                2, 0, Math.PI * 2
+                            );
+                            ctx.fill();
+                        }
+                    }
+                }
             } else if (gameState.chickens > 0 && !gameState.dragging && gameState.launchedChickens.length === 0) {
                 // Draw next chicken in slingshot
                 ctx.drawImage(
@@ -1317,6 +1373,11 @@
                     gameState.currentChicken.x = gameState.slingshot.x + Math.cos(angle) * maxDistance;
                     gameState.currentChicken.y = gameState.slingshot.y + Math.sin(angle) * maxDistance;
                 }
+                
+                // Update trajectory
+                const launchDx = gameState.slingshot.x - gameState.currentChicken.x;
+                const launchDy = gameState.slingshot.y - gameState.currentChicken.y;
+                gameState.trajectoryPoints = calculateTrajectory(launchDx, launchDy);
             }
         });
 
@@ -1327,6 +1388,7 @@
                 launchChicken(dx, dy);
                 gameState.dragging = false;
                 gameState.currentChicken = null;
+                gameState.trajectoryPoints = [];
             }
         });
         
@@ -1373,6 +1435,11 @@
                     gameState.currentChicken.x = gameState.slingshot.x + Math.cos(angle) * maxDistance;
                     gameState.currentChicken.y = gameState.slingshot.y + Math.sin(angle) * maxDistance;
                 }
+                
+                // Update trajectory
+                const launchDx = gameState.slingshot.x - gameState.currentChicken.x;
+                const launchDy = gameState.slingshot.y - gameState.currentChicken.y;
+                gameState.trajectoryPoints = calculateTrajectory(launchDx, launchDy);
             }
         });
         
@@ -1384,6 +1451,7 @@
                 launchChicken(dx, dy);
                 gameState.dragging = false;
                 gameState.currentChicken = null;
+                gameState.trajectoryPoints = [];
             }
         });
 
