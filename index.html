@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Ballistic Chickens Deluxe - More Obstacles</title>
+    <title>Ballistic Chickens Deluxe</title>
     <style>
         body {
             margin: 0;
@@ -211,7 +211,7 @@
             gameState.targets = [];
             gameState.obstacles = [];
             
-            // Create targets (pigs) - more pigs in later levels
+            // Create targets (pigs)
             const pigCount = 3 + Math.floor(gameState.level * 1.5);
             for (let i = 0; i < pigCount; i++) {
                 gameState.targets.push({
@@ -223,13 +223,12 @@
                 });
             }
             
-            // Create obstacles - significantly more in later levels
-            const baseObstacleCount = 2 + Math.floor(gameState.level * 1.5);
+            // Create obstacles
+            const obstacleCount = 2 + Math.floor(gameState.level * 0.8);
             const materials = ['wood', 'ice', 'stone'];
             const baseSize = Math.min(LEVEL_WIDTH, LEVEL_HEIGHT) * 0.05;
             
-            // Regular scattered obstacles
-            for (let i = 0; i < baseObstacleCount * 2; i++) {
+            for (let i = 0; i < obstacleCount; i++) {
                 const material = materials[Math.floor(Math.random() * materials.length)];
                 let strength;
                 switch(material) {
@@ -249,52 +248,12 @@
                 });
             }
             
-            // Create more complex structures as levels progress
-            if (gameState.level > 1) {
-                createStructure(LEVEL_WIDTH * 0.65, GROUND_HEIGHT - 150, 'pyramid', 3 + Math.floor(gameState.level/2));
-                createStructure(LEVEL_WIDTH * 0.75, GROUND_HEIGHT - 180, 'wall', 2 + Math.floor(gameState.level/3));
+            // Create structures
+            if (gameState.level > 2) {
+                createStructure(LEVEL_WIDTH * 0.7, GROUND_HEIGHT - 150, 'pyramid', 3 + Math.floor(gameState.level/3));
             }
-            if (gameState.level > 3) {
-                createStructure(LEVEL_WIDTH * 0.8, GROUND_HEIGHT - 200, 'tower', 2 + Math.floor(gameState.level/3));
-                createStructure(LEVEL_WIDTH * 0.55, GROUND_HEIGHT - 150, 'zigzag', 3 + Math.floor(gameState.level/4));
-            }
-            if (gameState.level > 5) {
-                createStructure(LEVEL_WIDTH * 0.7, GROUND_HEIGHT - 220, 'castle', 4);
-                createStructure(LEVEL_WIDTH * 0.6, GROUND_HEIGHT - 180, 'bridge', 3);
-            }
-            
-            // Add some random clusters
-            for (let i = 0; i < 2 + Math.floor(gameState.level/2); i++) {
-                createRandomCluster(
-                    LEVEL_WIDTH * 0.6 + Math.random() * LEVEL_WIDTH * 0.3,
-                    GROUND_HEIGHT - 150 - Math.random() * 100,
-                    3 + Math.floor(Math.random() * 3)
-                );
-            }
-        }
-        
-        function createRandomCluster(x, y, size) {
-            const materials = ['wood', 'ice', 'stone'];
-            const baseSize = Math.min(LEVEL_WIDTH, LEVEL_HEIGHT) * 0.05;
-            
-            for (let i = 0; i < size; i++) {
-                const material = materials[Math.floor(Math.random() * materials.length)];
-                let strength;
-                switch(material) {
-                    case 'wood': strength = WOOD_STRENGTH; break;
-                    case 'ice': strength = ICE_STRENGTH; break;
-                    case 'stone': strength = STONE_STRENGTH; break;
-                }
-                
-                gameState.obstacles.push({
-                    x: x + (Math.random() - 0.5) * baseSize * 4,
-                    y: y + (Math.random() - 0.5) * baseSize * 4,
-                    width: baseSize + Math.random() * baseSize,
-                    height: baseSize + Math.random() * baseSize,
-                    health: strength,
-                    type: material,
-                    rotation: Math.random() * Math.PI * 2
-                });
+            if (gameState.level > 4) {
+                createStructure(LEVEL_WIDTH * 0.8, GROUND_HEIGHT - 200, 'tower', 2 + Math.floor(gameState.level/4));
             }
         }
         
@@ -317,8 +276,7 @@
                         });
                     }
                 }
-            } 
-            else if (type === 'tower') {
+            } else if (type === 'tower') {
                 for (let i = 0; i < size; i++) {
                     gameState.obstacles.push({
                         x: x,
@@ -331,120 +289,616 @@
                     });
                 }
             }
-            else if (type === 'wall') {
-                for (let i = 0; i < size; i++) {
-                    gameState.obstacles.push({
-                        x: x + i * spacing,
-                        y: y,
-                        width: baseSize,
-                        height: baseSize * 1.5,
-                        health: i % 2 === 0 ? STONE_STRENGTH : WOOD_STRENGTH,
-                        type: i % 2 === 0 ? 'stone' : 'wood',
-                        rotation: 0
-                    });
-                }
-            }
-            else if (type === 'zigzag') {
-                for (let i = 0; i < size; i++) {
-                    gameState.obstacles.push({
-                        x: x + i * spacing,
-                        y: y + (i % 2 === 0 ? -spacing/2 : spacing/2),
-                        width: baseSize,
-                        height: baseSize,
-                        health: WOOD_STRENGTH,
-                        type: 'wood',
-                        rotation: Math.PI/4
-                    });
-                }
-            }
-            else if (type === 'castle') {
-                // Base
-                for (let i = 0; i < 3; i++) {
-                    gameState.obstacles.push({
-                        x: x - spacing + i * spacing,
-                        y: y,
-                        width: baseSize,
-                        height: baseSize * 2,
-                        health: STONE_STRENGTH,
-                        type: 'stone',
-                        rotation: 0
-                    });
-                }
-                
-                // Towers
-                gameState.obstacles.push({
-                    x: x - spacing * 1.5,
-                    y: y - spacing,
-                    width: baseSize,
-                    height: baseSize * 3,
-                    health: STONE_STRENGTH,
-                    type: 'stone',
-                    rotation: 0
-                });
-                
-                gameState.obstacles.push({
-                    x: x + spacing * 1.5,
-                    y: y - spacing,
-                    width: baseSize,
-                    height: baseSize * 3,
-                    health: STONE_STRENGTH,
-                    type: 'stone',
-                    rotation: 0
-                });
-                
-                // Battlements
-                for (let i = 0; i < 4; i++) {
-                    gameState.obstacles.push({
-                        x: x - spacing * 1.5 + i * spacing,
-                        y: y - spacing * 1.5,
-                        width: baseSize * 0.8,
-                        height: baseSize * 0.8,
-                        health: STONE_STRENGTH,
-                        type: 'stone',
-                        rotation: 0
-                    });
-                }
-            }
-            else if (type === 'bridge') {
-                // Pillars
-                gameState.obstacles.push({
-                    x: x - spacing,
-                    y: y + spacing,
-                    width: baseSize,
-                    height: baseSize * 3,
-                    health: STONE_STRENGTH,
-                    type: 'stone',
-                    rotation: 0
-                });
-                
-                gameState.obstacles.push({
-                    x: x + spacing,
-                    y: y + spacing,
-                    width: baseSize,
-                    height: baseSize * 3,
-                    health: STONE_STRENGTH,
-                    type: 'stone',
-                    rotation: 0
-                });
-                
-                // Bridge deck
-                for (let i = 0; i < 3; i++) {
-                    gameState.obstacles.push({
-                        x: x - spacing + i * spacing,
-                        y: y,
-                        width: baseSize * 1.5,
-                        height: baseSize * 0.5,
-                        health: WOOD_STRENGTH,
-                        type: 'wood',
-                        rotation: 0
-                    });
-                }
-            }
         }
 
-        // [Rest of the code remains the same as in the original game...]
-        // Texture creation functions, game mechanics, update, render, etc.
-        // These would all be the same as in the original code
+        // Texture creation functions
+        function createChickenTexture() {
+            const canvas = document.createElement('canvas');
+            canvas.width = CHICKEN_RADIUS * 4;
+            canvas.height = CHICKEN_RADIUS * 4;
+            const ctx = canvas.getContext('2d');
+            const center = CHICKEN_RADIUS * 2;
+            
+            // Body
+            const bodyGradient = ctx.createRadialGradient(
+                center, center, 0,
+                center, center, CHICKEN_RADIUS * 1.8
+            );
+            bodyGradient.addColorStop(0, '#FFEA00');
+            bodyGradient.addColorStop(1, '#FFA500');
+            ctx.fillStyle = bodyGradient;
+            ctx.beginPath();
+            ctx.ellipse(center, center, CHICKEN_RADIUS * 1.5, CHICKEN_RADIUS * 1.8, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Feather details
+            ctx.strokeStyle = '#FFC600';
+            ctx.lineWidth = 2;
+            for (let i = 0; i < 8; i++) {
+                const angle = (i / 8) * Math.PI * 2;
+                const x1 = center + Math.cos(angle) * CHICKEN_RADIUS * 1.2;
+                const y1 = center + Math.sin(angle) * CHICKEN_RADIUS * 1.2;
+                const x2 = center + Math.cos(angle) * CHICKEN_RADIUS * 1.6;
+                const y2 = center + Math.sin(angle) * CHICKEN_RADIUS * 1.6;
+                ctx.beginPath();
+                ctx.moveTo(x1, y1);
+                ctx.lineTo(x2, y2);
+                ctx.stroke();
+            }
+            
+            // Eyes
+            ctx.fillStyle = 'white';
+            ctx.beginPath();
+            ctx.arc(center - 15, center - 10, 8, 0, Math.PI * 2);
+            ctx.arc(center + 15, center - 10, 8, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.fillStyle = '#333';
+            ctx.beginPath();
+            ctx.arc(center - 15, center - 10, 4, 0, Math.PI * 2);
+            ctx.arc(center + 15, center - 10, 4, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Eye shine
+            ctx.fillStyle = 'white';
+            ctx.beginPath();
+            ctx.arc(center - 17, center - 12, 2, 0, Math.PI * 2);
+            ctx.arc(center + 13, center - 12, 2, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Beak
+            const beakGradient = ctx.createLinearGradient(
+                center - 10, center + 10,
+                center + 10, center + 20
+            );
+            beakGradient.addColorStop(0, '#FFC600');
+            beakGradient.addColorStop(1, '#FF6B00');
+            ctx.fillStyle = beakGradient;
+            ctx.beginPath();
+            ctx.moveTo(center - 10, center + 10);
+            ctx.lineTo(center + 10, center + 10);
+            ctx.lineTo(center, center + 20);
+            ctx.fill();
+            
+            // Comb
+            ctx.fillStyle = '#FF2800';
+            ctx.beginPath();
+            ctx.moveTo(center - 15, center - 25);
+            ctx.quadraticCurveTo(center, center - 35, center + 15, center - 25);
+            ctx.quadraticCurveTo(center, center - 30, center - 15, center - 25);
+            ctx.fill();
+            
+            return canvas;
+        }
+        
+        function createPigTexture() {
+            const canvas = document.createElement('canvas');
+            canvas.width = PIG_RADIUS * 4;
+            canvas.height = PIG_RADIUS * 4;
+            const ctx = canvas.getContext('2d');
+            const center = PIG_RADIUS * 2;
+            
+            // Body
+            const bodyGradient = ctx.createRadialGradient(
+                center, center, 0,
+                center, center, PIG_RADIUS * 1.8
+            );
+            bodyGradient.addColorStop(0, '#FF9E9E');
+            bodyGradient.addColorStop(1, '#FF6B6B');
+            ctx.fillStyle = bodyGradient;
+            ctx.beginPath();
+            ctx.ellipse(center, center, PIG_RADIUS * 1.6, PIG_RADIUS * 1.8, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Shadow
+            ctx.fillStyle = 'rgba(200, 100, 100, 0.3)';
+            ctx.beginPath();
+            ctx.ellipse(center, center + PIG_RADIUS * 0.8, 
+                        PIG_RADIUS * 1.5, PIG_RADIUS * 0.8, 0, 0, Math.PI);
+            ctx.fill();
+            
+            // Eyes
+            ctx.fillStyle = 'white';
+            ctx.beginPath();
+            ctx.arc(center - 12, center - 8, 6, 0, Math.PI * 2);
+            ctx.arc(center + 12, center - 8, 6, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.fillStyle = '#333';
+            ctx.beginPath();
+            ctx.arc(center - 12, center - 8, 3, 0, Math.PI * 2);
+            ctx.arc(center + 12, center - 8, 3, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Nose
+            ctx.fillStyle = '#E84C3D';
+            ctx.beginPath();
+            ctx.ellipse(center, center + 5, 10, 8, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Nostrils
+            ctx.fillStyle = '#C1392B';
+            ctx.beginPath();
+            ctx.arc(center - 4, center + 5, 2, 0, Math.PI * 2);
+            ctx.arc(center + 4, center + 5, 2, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Ears
+            ctx.fillStyle = '#FF6B6B';
+            ctx.beginPath();
+            ctx.moveTo(center - 20, center - 15);
+            ctx.lineTo(center - 25, center - 25);
+            ctx.lineTo(center - 15, center - 20);
+            ctx.fill();
+            
+            ctx.beginPath();
+            ctx.moveTo(center + 20, center - 15);
+            ctx.lineTo(center + 25, center - 25);
+            ctx.lineTo(center + 15, center - 20);
+            ctx.fill();
+            
+            return canvas;
+        }
+        
+        function createWoodTexture() {
+            const size = Math.max(LEVEL_WIDTH, LEVEL_HEIGHT) * 0.1;
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+            
+            // Wood base
+            const woodGradient = ctx.createLinearGradient(0, 0, 0, size);
+            woodGradient.addColorStop(0, '#8B4513');
+            woodGradient.addColorStop(0.5, '#A0522D');
+            woodGradient.addColorStop(1, '#5D2906');
+            ctx.fillStyle = woodGradient;
+            ctx.fillRect(0, 0, size, size);
+            
+            // Wood grain
+            ctx.strokeStyle = 'rgba(60, 30, 10, 0.7)';
+            ctx.lineWidth = 1.5;
+            for (let i = 0; i < 8; i++) {
+                const y = i * (size/8) + Math.random() * (size/16);
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.bezierCurveTo(
+                    size/4, y + Math.random() * (size/20) - size/40,
+                    size*3/4, y + Math.random() * (size/20) - size/40,
+                    size, y + Math.random() * (size/25) - size/50
+                );
+                ctx.stroke();
+                
+                if (i < 7) {
+                    ctx.strokeStyle = 'rgba(60, 30, 10, 0.4)';
+                    ctx.lineWidth = 0.8;
+                    for (let j = 0; j < 3; j++) {
+                        const subY = y + (size/30) + j * (size/40);
+                        ctx.beginPath();
+                        ctx.moveTo(0, subY);
+                        ctx.lineTo(size, subY + Math.random() * (size/25) - size/50);
+                        ctx.stroke();
+                    }
+                    ctx.strokeStyle = 'rgba(60, 30, 10, 0.7)';
+                    ctx.lineWidth = 1.5;
+                }
+            }
+            
+            // Knots
+            ctx.fillStyle = 'rgba(40, 20, 5, 0.6)';
+            for (let i = 0; i < 3; i++) {
+                const x = size/4 + Math.random() * size/2;
+                const y = size/4 + Math.random() * size/2;
+                const knotSize = size/20 + Math.random() * size/15;
+                ctx.beginPath();
+                ctx.arc(x, y, knotSize, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.strokeStyle = 'rgba(40, 20, 5, 0.8)';
+                ctx.lineWidth = 0.8;
+                ctx.beginPath();
+                ctx.arc(x, y, knotSize * 1.5, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+            
+            return canvas;
+        }
+        
+        function createIceTexture() {
+            const size = Math.max(LEVEL_WIDTH, LEVEL_HEIGHT) * 0.1;
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+            
+            // Ice base
+            const iceGradient = ctx.createLinearGradient(0, 0, size, size);
+            iceGradient.addColorStop(0, '#B3E5FC');
+            iceGradient.addColorStop(0.5, '#81D4FA');
+            iceGradient.addColorStop(1, '#4FC3F7');
+            ctx.fillStyle = iceGradient;
+            ctx.fillRect(0, 0, size, size);
+            
+            // Frost
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+            ctx.lineWidth = 1.2;
+            for (let i = 0; i < 15; i++) {
+                const x = Math.random() * size;
+                const y = Math.random() * size;
+                const patternSize = size/10 + Math.random() * size/5;
+                
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                for (let j = 0; j < 4; j++) {
+                    const angle = Math.random() * Math.PI * 2;
+                    const length = patternSize * (0.5 + Math.random() * 0.5);
+                    ctx.lineTo(x + Math.cos(angle) * length, y + Math.sin(angle) * length);
+                }
+                ctx.closePath();
+                ctx.stroke();
+            }
+            
+            // Highlights
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(size/2, 0);
+            ctx.lineTo(0, size/2);
+            ctx.fill();
+            
+            ctx.beginPath();
+            ctx.moveTo(size, size);
+            ctx.lineTo(size/2, size);
+            ctx.lineTo(size, size/2);
+            ctx.fill();
+            
+            // Bubbles
+            for (let i = 0; i < 8; i++) {
+                const x = Math.random() * size;
+                const y = Math.random() * size;
+                const bubbleSize = size/30 + Math.random() * size/20;
+                
+                ctx.fillStyle = 'rgba(200, 240, 255, 0.8)';
+                ctx.beginPath();
+                ctx.arc(x, y, bubbleSize, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+                ctx.beginPath();
+                ctx.arc(x - bubbleSize/3, y - bubbleSize/3, bubbleSize/3, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            
+            return canvas;
+        }
+        
+        function createStoneTexture() {
+            const size = Math.max(LEVEL_WIDTH, LEVEL_HEIGHT) * 0.1;
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+            
+            // Stone base
+            const stoneGradient = ctx.createLinearGradient(0, 0, size, size);
+            stoneGradient.addColorStop(0, '#7F7F7F');
+            stoneGradient.addColorStop(0.5, '#999999');
+            stoneGradient.addColorStop(1, '#5F5F5F');
+            ctx.fillStyle = stoneGradient;
+            ctx.fillRect(0, 0, size, size);
+            
+            // Texture
+            const imageData = ctx.getImageData(0, 0, size, size);
+            const data = imageData.data;
+            
+            for (let i = 0; i < data.length; i += 4) {
+                const grain = Math.random() * 30 - 15;
+                data[i] = Math.min(255, Math.max(0, data[i] + grain));
+                data[i+1] = Math.min(255, Math.max(0, data[i+1] + grain));
+                data[i+2] = Math.min(255, Math.max(0, data[i+2] + grain));
+                
+                if (Math.random() > 0.7) {
+                    data[i] += Math.random() * 20 - 10;
+                    data[i+1] += Math.random() * 10 - 5;
+                }
+            }
+            
+            ctx.putImageData(imageData, 0, 0);
+            
+            // Cracks
+            ctx.strokeStyle = 'rgba(60, 60, 60, 0.6)';
+            ctx.lineWidth = 1.2;
+            for (let i = 0; i < 5; i++) {
+                const x1 = Math.random() * size;
+                const y1 = Math.random() * size;
+                const x2 = x1 + Math.random() * (size/5) - size/10;
+                const y2 = y1 + Math.random() * (size/5) - size/10;
+                
+                ctx.beginPath();
+                ctx.moveTo(x1, y1);
+                for (let j = 0; j < 3; j++) {
+                    const midX = (x1 + x2)/2 + Math.random() * (size/20) - size/40;
+                    const midY = (y1 + y2)/2 + Math.random() * (size/20) - size/40;
+                    ctx.quadraticCurveTo(midX, midY, x2, y2);
+                }
+                ctx.stroke();
+            }
+            
+            // Veins
+            const veinColors = ['#6AB7E6', '#A57FBF', '#E6C36A', '#8FBE8F'];
+            for (let i = 0; i < 3; i++) {
+                const x1 = Math.random() * size;
+                const y1 = Math.random() * size;
+                const length = size/5 + Math.random() * size/3;
+                const angle = Math.random() * Math.PI * 2;
+                const x2 = x1 + Math.cos(angle) * length;
+                const y2 = y1 + Math.sin(angle) * length;
+                
+                ctx.strokeStyle = veinColors[Math.floor(Math.random() * veinColors.length)];
+                ctx.lineWidth = 0.8 + Math.random() * 1.5;
+                ctx.beginPath();
+                ctx.moveTo(x1, y1);
+                ctx.lineTo(x2, y2);
+                ctx.stroke();
+            }
+            
+            return canvas;
+        }
+        
+        function createGroundTexture() {
+            const canvas = document.createElement('canvas');
+            canvas.width = LEVEL_WIDTH;
+            canvas.height = LEVEL_HEIGHT - GROUND_HEIGHT + 50;
+            const ctx = canvas.getContext('2d');
+            
+            // Dirt
+            const dirtGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            dirtGradient.addColorStop(0, '#5D4037');
+            dirtGradient.addColorStop(0.7, '#3E2723');
+            dirtGradient.addColorStop(1, '#1B0000');
+            ctx.fillStyle = dirtGradient;
+            ctx.fillRect(0, 0, LEVEL_WIDTH, canvas.height);
+            
+            // Grass
+            const grassGradient = ctx.createLinearGradient(0, 0, 0, 40);
+            grassGradient.addColorStop(0, '#4CAF50');
+            grassGradient.addColorStop(0.5, '#388E3C');
+            grassGradient.addColorStop(1, '#2E7D32');
+            ctx.fillStyle = grassGradient;
+            ctx.fillRect(0, 0, LEVEL_WIDTH, 40);
+            
+            // Grass blades
+            ctx.strokeStyle = '#2E7D32';
+            ctx.lineWidth = 1.5;
+            const grassCount = Math.floor(LEVEL_WIDTH / 10);
+            for (let i = 0; i < grassCount; i++) {
+                const x = Math.random() * LEVEL_WIDTH;
+                const height = 10 + Math.random() * 30;
+                const curve = Math.random() * 20 - 10;
+                
+                ctx.beginPath();
+                ctx.moveTo(x, 40);
+                ctx.quadraticCurveTo(
+                    x + curve, 
+                    40 - height/2,
+                    x + curve/2,
+                    40 - height
+                );
+                ctx.stroke();
+                
+                if (Math.random() > 0.7) {
+                    ctx.strokeStyle = '#81C784';
+                    ctx.beginPath();
+                    ctx.moveTo(x + 2, 40);
+                    ctx.quadraticCurveTo(
+                        x + 2 + curve*0.8, 
+                        40 - height/2,
+                        x + 2 + curve/2*0.8,
+                        40 - height*0.9
+                    );
+                    ctx.stroke();
+                    ctx.strokeStyle = '#2E7D32';
+                }
+            }
+            
+            // Plants
+            const plantCount = Math.floor(LEVEL_WIDTH / 50);
+            for (let i = 0; i < plantCount; i++) {
+                const x = Math.random() * LEVEL_WIDTH;
+                const plantType = Math.floor(Math.random() * 3);
+                
+                if (plantType === 0) {
+                    ctx.fillStyle = '#FFEB3B';
+                    ctx.beginPath();
+                    ctx.arc(x, 35, 2, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    ctx.fillStyle = '#F44336';
+                    for (let j = 0; j < 5; j++) {
+                        const angle = (j / 5) * Math.PI * 2;
+                        ctx.beginPath();
+                        ctx.arc(
+                            x + Math.cos(angle) * 4,
+                            35 + Math.sin(angle) * 4,
+                            1.5, 0, Math.PI * 2
+                        );
+                        ctx.fill();
+                    }
+                } else if (plantType === 1) {
+                    ctx.fillStyle = '#4CAF50';
+                    for (let j = 0; j < 3; j++) {
+                        const angle = (j / 3) * Math.PI * 2;
+                        ctx.beginPath();
+                        ctx.ellipse(
+                            x + Math.cos(angle) * 3,
+                            36 + Math.sin(angle) * 3,
+                            3, 2, angle, 0, Math.PI * 2
+                        );
+                        ctx.fill();
+                    }
+                } else {
+                    ctx.strokeStyle = '#8BC34A';
+                    ctx.lineWidth = 1.2;
+                    ctx.beginPath();
+                    ctx.moveTo(x, 40);
+                    ctx.bezierCurveTo(
+                        x + 5, 20,
+                        x - 5, 10,
+                        x + 3, 5
+                    );
+                    ctx.stroke();
+                }
+            }
+            
+            return canvas;
+        }
+        
+        function createSlingshotTexture() {
+            const size = Math.min(LEVEL_WIDTH, LEVEL_HEIGHT) * 0.15;
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+            
+            // Poles
+            ctx.fillStyle = '#5D2906';
+            ctx.fillRect(size*0.35, size*0.7, size*0.08, size*0.3);
+            ctx.fillRect(size*0.6, size*0.7, size*0.08, size*0.3);
+            
+            // Details
+            ctx.strokeStyle = '#8B4513';
+            ctx.lineWidth = size*0.02;
+            for (let i = 0; i < 4; i++) {
+                ctx.beginPath();
+                ctx.moveTo(size*0.39, size*0.7 + i * size*0.08);
+                ctx.lineTo(size*0.39, size*0.7 + (i + 1) * size*0.08);
+                ctx.stroke();
+                
+                ctx.beginPath();
+                ctx.moveTo(size*0.64, size*0.7 + i * size*0.08);
+                ctx.lineTo(size*0.64, size*0.7 + (i + 1) * size*0.08);
+                ctx.stroke();
+            }
+            
+            // Crossbar
+            ctx.fillStyle = '#5D2906';
+            ctx.fillRect(size*0.39, size*0.5, size*0.3, size*0.08);
+            
+            // Rubber bands
+            const bandGradient = ctx.createLinearGradient(size*0.4, size*0.5, size*0.4, size*0.8);
+            bandGradient.addColorStop(0, '#C62828');
+            bandGradient.addColorStop(1, '#E53935');
+            
+            ctx.strokeStyle = bandGradient;
+            ctx.lineWidth = size*0.04;
+            ctx.lineCap = 'round';
+            
+            ctx.beginPath();
+            ctx.moveTo(size*0.4, size*0.5);
+            ctx.quadraticCurveTo(size*0.25, size*0.6, size*0.4, size*0.8);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(size*0.7, size*0.5);
+            ctx.quadraticCurveTo(size*0.85, size*0.6, size*0.7, size*0.8);
+            ctx.stroke();
+            
+            // Pouch
+            ctx.fillStyle = '#5D2906';
+            ctx.beginPath();
+            ctx.moveTo(size*0.4, size*0.8);
+            ctx.quadraticCurveTo(size*0.55, size*0.85, size*0.7, size*0.8);
+            ctx.quadraticCurveTo(size*0.55, size*0.75, size*0.4, size*0.8);
+            ctx.fill();
+            
+            // Stitching
+            ctx.strokeStyle = '#8B4513';
+            ctx.lineWidth = size*0.008;
+            for (let i = 0; i < 3; i++) {
+                const y = size*0.78 + i * size*0.01;
+                ctx.beginPath();
+                ctx.moveTo(size*0.42, y);
+                ctx.lineTo(size*0.68, y);
+                ctx.stroke();
+            }
+            
+            return canvas;
+        }
+        
+        function createExplosionTexture() {
+            const size = Math.min(LEVEL_WIDTH, LEVEL_HEIGHT) * 0.2;
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+            
+            // Core
+            const coreGradient = ctx.createRadialGradient(
+                size/2, size/2, 0,
+                size/2, size/2, size/2
+            );
+            coreGradient.addColorStop(0, 'rgba(255, 200, 0, 1)');
+            coreGradient.addColorStop(0.3, 'rgba(255, 100, 0, 0.8)');
+            coreGradient.addColorStop(0.6, 'rgba(255, 50, 0, 0.5)');
+            coreGradient.addColorStop(1, 'rgba(255, 0, 0, 0)');
+            
+            ctx.fillStyle = coreGradient;
+            ctx.fillRect(0, 0, size, size);
+            
+            // Fire
+            for (let i = 0; i < 12; i++) {
+                const angle = (i / 12) * Math.PI * 2;
+                const length = size*0.3 + Math.random() * size*0.2;
+                const x2 = size/2 + Math.cos(angle) * length;
+                const y2 = size/2 + Math.sin(angle) * length;
+                
+                const fireGradient = ctx.createLinearGradient(
+                    size/2, size/2,
+                    x2, y2
+                );
+                fireGradient.addColorStop(0, 'rgba(255, 200, 0, 0.8)');
+                fireGradient.addColorStop(1, 'rgba(255, 50, 0, 0)');
+                
+                ctx.strokeStyle = fireGradient;
+                ctx.lineWidth = size*0.03 + Math.random() * size*0.04;
+                ctx.beginPath();
+                ctx.moveTo(size/2, size/2);
+                
+                const midX = (size/2 + x2)/2 + (Math.random() * size*0.05 - size*0.025);
+                const midY = (size/2 + y2)/2 + (Math.random() * size*0.05 - size*0.025);
+                ctx.quadraticCurveTo(midX, midY, x2, y2);
+                ctx.stroke();
+            }
+            
+            // Smoke
+            for (let i = 0; i < 8; i++) {
+                const angle = (i / 8) * Math.PI * 2;
+                const length = size*0.2 + Math.random() * size*0.15;
+                const x = size/2 + Math.cos(angle) * length;
+                const y = size/2 + Math.sin(angle) * length;
+                const smokeSize = size*0.05 + Math.random() * size*0.1;
+                
+                ctx.fillStyle = `rgba(100, 100, 100, ${0.2 + Math.random() * 0.3})`;
+                ctx.beginPath();
+                ctx.arc(x, y, smokeSize, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            
+            // Sparkles
+            for (let i = 0; i < 20; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const length = Math.random() * size*0.4;
+                const x = size/2 + Math.cos(angle) * length;
+                const y = size/2 + Math.sin(angle) * length;
+                
+                ctx.fillStyle = `rgba(255, 255, 255, ${0.5 + Math.random() * 0.5})`;
+                ctx.beginPath();
+                ctx.arc(x, y, size*0.01 + Math.random() * size*0.02, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            
+            return canvas;
+        }
 
         // Game mechanics
         function launchChicken(dx, dy) {
