@@ -18,34 +18,66 @@
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
 
-        let bird = { x: 100, y: canvas.height - 150, radius: 20, speedX: 0, speedY: 0, dragging: false };
-        let target = { x: canvas.width - 200, y: canvas.height - 150, width: 50, height: 50 };
+        // Load images and sound effects
+        const birdImage = new Image();
+        const targetImage = new Image();
+        birdImage.src = 'https://example.com/bird.png';  // Replace with actual bird image URL
+        targetImage.src = 'https://example.com/target.png';  // Replace with actual target image URL
+
+        const launchSound = new Audio('https://example.com/launch-sound.mp3');  // Replace with sound file URL
+        const hitSound = new Audio('https://example.com/hit-sound.mp3');  // Replace with sound file URL
+
+        // Variables for bird and target
+        let bird = { x: 100, y: canvas.height - 150, radius: 20, speedX: 0, speedY: 0, dragging: false, image: birdImage };
+        let target = { x: canvas.width - 200, y: canvas.height - 150, width: 50, height: 50, image: targetImage };
+        let obstacles = [{ x: canvas.width / 2, y: canvas.height - 200, width: 100, height: 30 }];
+        let score = 0;
         let isLaunched = false;
 
-        // Draw bird and target
+        // Draw the game objects
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.beginPath();
-            ctx.arc(bird.x, bird.y, bird.radius, 0, Math.PI * 2); // Draw bird
-            ctx.fillStyle = "red";
-            ctx.fill();
-            ctx.closePath();
 
-            ctx.beginPath();
-            ctx.rect(target.x, target.y, target.width, target.height); // Draw target
-            ctx.fillStyle = "green";
-            ctx.fill();
-            ctx.closePath();
+            // Draw the bird
+            ctx.drawImage(bird.image, bird.x - bird.radius, bird.y - bird.radius, bird.radius * 2, bird.radius * 2);
 
+            // Draw the target
+            ctx.drawImage(target.image, target.x, target.y, target.width, target.height);
+
+            // Draw obstacles
+            ctx.fillStyle = "#8B4513"; // Brown color for obstacles
+            obstacles.forEach(obs => ctx.fillRect(obs.x, obs.y, obs.width, obs.height));
+
+            // Draw score
+            ctx.font = "20px Arial";
+            ctx.fillStyle = "black";
+            ctx.fillText("Score: " + score, 20, 30);
+
+            // Update the bird's position if launched
             if (isLaunched) {
                 bird.x += bird.speedX;
                 bird.y += bird.speedY;
-                bird.speedY += 0.2; // gravity
+                bird.speedY += 0.2; // gravity effect
+
+                // Check for collision with obstacles
+                obstacles.forEach(obs => {
+                    if (bird.x + bird.radius > obs.x && bird.x - bird.radius < obs.x + obs.width &&
+                        bird.y + bird.radius > obs.y && bird.y - bird.radius < obs.y + obs.height) {
+                        bird.speedX = -bird.speedX * 0.7; // Bounce on collision
+                        bird.speedY = -bird.speedY * 0.7;
+                    }
+                });
 
                 // Detect collision with target
                 if (bird.x + bird.radius > target.x && bird.x - bird.radius < target.x + target.width &&
                     bird.y + bird.radius > target.y && bird.y - bird.radius < target.y + target.height) {
-                    alert("You hit the target!");
+                    hitSound.play();
+                    score += 10;
+                    resetGame();
+                }
+
+                // Reset if bird falls below the screen
+                if (bird.y > canvas.height) {
                     resetGame();
                 }
             }
@@ -75,6 +107,7 @@
         });
 
         function launchBird() {
+            launchSound.play();
             let launchAngle = Math.atan2(bird.y - (canvas.height - 150), bird.x - 100);
             let force = Math.min(Math.abs(bird.y - (canvas.height - 150)) * 0.5, 15);
             bird.speedX = force * Math.cos(launchAngle);
@@ -84,8 +117,9 @@
 
         // Reset game to initial state
         function resetGame() {
-            bird = { x: 100, y: canvas.height - 150, radius: 20, speedX: 0, speedY: 0, dragging: false };
+            bird = { x: 100, y: canvas.height - 150, radius: 20, speedX: 0, speedY: 0, dragging: false, image: birdImage };
             isLaunched = false;
+            obstacles = [{ x: canvas.width / 2, y: canvas.height - 200, width: 100, height: 30 }];
         }
 
         draw();
