@@ -1,54 +1,94 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ballistic Chickens Game</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f0f4f8;
-      text-align: center;
-      margin: 0;
-      padding: 0;
-    }
-    h1 {
-      color: #333;
-      margin-top: 20px;
-    }
-    .game-container {
-      margin-top: 30px;
-      background-color: white;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-      padding: 20px;
-      width: 90%;
-      max-width: 800px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-    iframe {
-      width: 100%;
-      height: 500px;
-      border: none;
-    }
-    .footer {
-      margin-top: 40px;
-      font-size: 14px;
-      color: #555;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Angry Birds Slingshot Game</title>
+    <style>
+        body { margin: 0; overflow: hidden; }
+        canvas { background-color: #f0f0f0; display: block; margin: auto; }
+    </style>
 </head>
 <body>
+    <canvas id="gameCanvas"></canvas>
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
 
-  <h1>Welcome to Ballistic Chickens Game!</h1>
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
 
-  <div class="game-container">
-    <iframe src="https://seraph.reveriestudios.online/games/ballisticchickens/index.html" title="Ballistic Chickens Game"></iframe>
-  </div>
+        let bird = { x: 100, y: canvas.height - 150, radius: 20, speedX: 0, speedY: 0, dragging: false };
+        let target = { x: canvas.width - 200, y: canvas.height - 150, width: 50, height: 50 };
+        let isLaunched = false;
 
-  <div class="footer">
-    <p>Enjoy the game! This site is designed for fun and learning. Stay safe online!</p>
-  </div>
+        // Draw bird and target
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.beginPath();
+            ctx.arc(bird.x, bird.y, bird.radius, 0, Math.PI * 2); // Draw bird
+            ctx.fillStyle = "red";
+            ctx.fill();
+            ctx.closePath();
 
+            ctx.beginPath();
+            ctx.rect(target.x, target.y, target.width, target.height); // Draw target
+            ctx.fillStyle = "green";
+            ctx.fill();
+            ctx.closePath();
+
+            if (isLaunched) {
+                bird.x += bird.speedX;
+                bird.y += bird.speedY;
+                bird.speedY += 0.2; // gravity
+
+                // Detect collision with target
+                if (bird.x + bird.radius > target.x && bird.x - bird.radius < target.x + target.width &&
+                    bird.y + bird.radius > target.y && bird.y - bird.radius < target.y + target.height) {
+                    alert("You hit the target!");
+                    resetGame();
+                }
+            }
+
+            requestAnimationFrame(draw);
+        }
+
+        // Mouse event for dragging the bird
+        canvas.addEventListener("mousedown", (e) => {
+            if (!isLaunched) {
+                bird.dragging = true;
+            }
+        });
+
+        canvas.addEventListener("mousemove", (e) => {
+            if (bird.dragging && !isLaunched) {
+                bird.x = e.clientX;
+                bird.y = e.clientY;
+            }
+        });
+
+        canvas.addEventListener("mouseup", () => {
+            if (bird.dragging) {
+                bird.dragging = false;
+                launchBird();
+            }
+        });
+
+        function launchBird() {
+            let launchAngle = Math.atan2(bird.y - (canvas.height - 150), bird.x - 100);
+            let force = Math.min(Math.abs(bird.y - (canvas.height - 150)) * 0.5, 15);
+            bird.speedX = force * Math.cos(launchAngle);
+            bird.speedY = force * Math.sin(launchAngle);
+            isLaunched = true;
+        }
+
+        // Reset game to initial state
+        function resetGame() {
+            bird = { x: 100, y: canvas.height - 150, radius: 20, speedX: 0, speedY: 0, dragging: false };
+            isLaunched = false;
+        }
+
+        draw();
+    </script>
 </body>
 </html>
