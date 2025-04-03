@@ -924,14 +924,14 @@
         });
 
         restartBtn.addEventListener('click', () => {
-            gameState.chickens = 5;
+            gameState.chickens = 20;
             chickenCountEl.textContent = gameState.chickens;
             resetGameState();
             generateLevel();
         });
 
         newGameBtn.addEventListener('click', () => {
-            gameState.chickens = 5;
+            gameState.chickens = 20;
             gameState.score = 0;
             gameState.level = 1;
             chickenCountEl.textContent = gameState.chickens;
